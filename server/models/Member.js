@@ -44,8 +44,24 @@ const memberSchema = new mongoose.Schema({
 
   status: {
     type: String,
-    default: "Active",
+    default: "Unpaid",
   },
 });
+paymentHistory: [
+  {
+    amount: {
+      type: Number,
+      required: true,
+    },
+    paymentDate: {
+      type: String,
+      required: true,
+    },
+    paymentMethod: {
+      type: String,
+      default: "Cash",
+    },
+  },
+],
 
 module.exports = mongoose.model("Member", memberSchema);
