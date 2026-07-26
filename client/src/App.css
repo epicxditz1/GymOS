@@ -1,0 +1,129 @@
+body{
+    margin:0;
+    background:#18181B;
+    color:white;
+    font-family:Arial, Helvetica, sans-serif;
+}
+.container {
+    width:700px;
+    max-width:95%;
+    margin:80px auto;
+    padding:30px;
+    background:#27272A;
+    border:2px solid #3F3F46;
+    border-radius:15px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.4);
+    text-align:center;
+}
+
+button{
+    display:block;
+    margin:15px auto;
+    width:90%;
+    max-width:220px;
+    padding:15px;
+    font-size:18px;
+    border:none;
+    border-radius:10px;
+    background:#7C3AED;
+    color:#FFFFFF;
+    cursor:pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover{
+    background:#6D28D9;
+    transform:translateY(-3px);
+    box-shadow:0 8px 20px rgba(124,58,237,0.4);
+}
+h1{
+    color:#FFFFFF;
+    font-size:42px;
+    margin-bottom:10px;
+}
+
+h2{
+    color:#A1A1AA;
+    font-weight:400;
+}
+
+p{
+    color:#9CA3AF;
+}
+input{
+    width:90%;
+    padding:12px;
+    margin:10px 0;
+    border:2px solid #52525B;
+    border-radius:10px;
+    background:#3F3F46;
+    color:white;
+    font-size:16px;
+    box-sizing:border-box;
+}
+
+input::placeholder{
+    color:#A1A1AA;
+}
+select{
+    display:block;
+    width:90%;
+    padding:12px;
+    margin:10px auto;
+    border:2px solid #52525B;
+    border-radius:10px;
+    background:#3F3F46;
+    color:white;
+    font-size:16px;
+    box-sizing:border-box;
+}
+input:focus,
+select:focus{
+    outline:none;
+    border-color:#7C3AED;
+    box-shadow:0 0 10px rgba(124,58,237,0.5);
+}
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin: 20px 0;
+}
+.dashboard-card {
+  width: 100%;
+  box-sizing: border-box;
+  background: #1f2937;
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid #52525B;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  text-align: center;
+  transition: 0.3s;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  border-color: #7C3AED;
+  box-shadow: 0 12px 25px rgba(124, 58, 237, 0.35);
+}
+.dashboard-card h3 {
+  margin: 0;
+  color: #A1A1AA;
+}
+
+.dashboard-card h1 {
+  margin-top: 10px;
+  color: #7C3AED;
+  font-size: 42px;
+}
+@media (max-width: 600px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .container {
+    width: 95%;
+    padding: 20px;
+  }
+}
