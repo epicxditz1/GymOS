@@ -371,7 +371,7 @@ if (page === "view-members") {
     setMembership(member.membership);
     setPhone(member.phone);
     setJoinDate(member.joinDate);
-    setAmount(member.amount);
+    setAmount(member.fees);
     setStatus(member.status);
 
     setPage("add-member");
