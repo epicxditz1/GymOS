@@ -73,13 +73,34 @@ router.delete("/:id", async (req, res) => {
 });
 // Update Member
 router.put("/:id", async (req, res) => {
-  console.log("PUT ID:", req.params.id);
-  try {
+ console.log("PUT ID:", req.params.id);
+ console.log("=== PUT ROUTE HIT ===");
+
+try {
+  console.log("REQ BODY:", req.body);
+  const existingMember = await Member.findById(req.params.id);
+
+  console.log("Old Status:", existingMember.status);
+  console.log("New Status:", req.body.status);
+    if (
+  existingMember.status === "Unpaid" &&
+  req.body.status === "Paid"
+) {
+  req.body.paymentHistory = [
+    ...(existingMember.paymentHistory || []),
+    {
+      amount: req.body.fees,
+      paymentDate: new Date().toLocaleDateString("en-GB"),
+      paymentMethod: req.body.paymentMethod,
+    },
+  ];
+}
     const updatedMember = await Member.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true }
     );
+    console.log("Updated Member:", updatedMember);
 
     res.json({
       message: "✅ Member Updated Successfully",

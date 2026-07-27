@@ -38,30 +38,33 @@ const memberSchema = new mongoose.Schema({
   },
 
   attendance: {
-  type: String,
-  default: "Absent",
-},
+    type: String,
+    default: "Absent",
+  },
 
   status: {
     type: String,
     default: "Unpaid",
   },
+
+  paymentHistory: [
+    {
+      amount: {
+        type: Number,
+        required: true,
+      },
+
+      paymentDate: {
+        type: String,
+        required: true,
+      },
+
+      paymentMethod: {
+        type: String,
+        default: "Cash",
+      },
+    },
+  ],
 });
-paymentHistory: [
-  {
-    amount: {
-      type: Number,
-      required: true,
-    },
-    paymentDate: {
-      type: String,
-      required: true,
-    },
-    paymentMethod: {
-      type: String,
-      default: "Cash",
-    },
-  },
-],
 
 module.exports = mongoose.model("Member", memberSchema);
