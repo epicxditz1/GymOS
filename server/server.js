@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const userRoutes = require("./routes/userRoutes");
 require("dotenv").config();
 
 const memberRoutes = require("./routes/memberRoutes");
@@ -15,6 +16,8 @@ app.options("/api/members/*", (req, res) => {
   res.sendStatus(204);
 });
 app.use("/api/members", memberRoutes);
+
+app.use("/api/users", userRoutes);
 
 // MongoDB Connection
 mongoose

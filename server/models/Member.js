@@ -37,6 +37,11 @@ const memberSchema = new mongoose.Schema({
     required: true,
   },
 
+  photo: {
+  type: String,
+  default: "",
+},
+
   attendance: {
     type: String,
     default: "Absent",

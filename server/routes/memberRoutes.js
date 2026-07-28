@@ -2,12 +2,20 @@ const express = require("express");
 const router = express.Router();
 
 const Member = require("../models/Member");
+const upload = require("../middleware/upload");
 
+// =======================
 // Save Member
-router.post("/", async (req, res) => {
-  console.log("BODY RECEIVED:", req.body);
-
+// =======================
+router.post("/", upload.single("photo"), async (req, res) => {
   try {
+    console.log("BODY:", req.body);
+    console.log("FILE:", req.file);
+
+    if (req.file) {
+      req.body.photo = req.file.path;
+    }
+
     const member = new Member(req.body);
     await member.save();
 
@@ -15,16 +23,18 @@ router.post("/", async (req, res) => {
       message: "✅ Member Saved Successfully",
       member,
     });
-  } 
-  catch (error) {
-  console.error("❌ FULL ERROR:", error);
+  } catch (error) {
+    console.error("❌ Save Error:", error);
 
-  res.status(500).json({
-    message: error.message,
-  });
-}
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 });
+
+// =======================
 // Get All Members
+// =======================
 router.get("/", async (req, res) => {
   try {
     const members = await Member.find().sort({ _id: -1 });
@@ -38,24 +48,10 @@ router.get("/", async (req, res) => {
     });
   }
 });
+
+// =======================
 // Delete Member
-router.delete("/:id", async (req, res) => {
-  console.log("DELETE ID:", req.params.id);
-
-  try {
-    await Member.findByIdAndDelete(req.params.id);
-
-    res.json({
-      message: "✅ Member Deleted Successfully",
-    });
-  } catch (error) {
-    console.error("❌ Delete Error:", error);
-
-    res.status(500).json({
-      message: error.message,
-    });
-  }
-});
+// =======================
 router.delete("/:id", async (req, res) => {
   try {
     await Member.findByIdAndDelete(req.params.id);
@@ -71,36 +67,50 @@ router.delete("/:id", async (req, res) => {
     });
   }
 });
+
+// =======================
 // Update Member
-router.put("/:id", async (req, res) => {
- console.log("PUT ID:", req.params.id);
- console.log("=== PUT ROUTE HIT ===");
+// =======================
+router.put("/:id", upload.any(), async (req, res) => {
+  try {
+    console.log("PUT ID:", req.params.id);
+    console.log("REQ BODY:", req.body);
+    console.log("REQ FILES:", req.files);
 
-try {
-  console.log("REQ BODY:", req.body);
-  const existingMember = await Member.findById(req.params.id);
+    if (req.files && req.files.length > 0) {
+      req.body.photo = req.files[0].path;
+    }
 
-  console.log("Old Status:", existingMember.status);
-  console.log("New Status:", req.body.status);
+    const existingMember = await Member.findById(req.params.id);
+
+    if (!existingMember) {
+      return res.status(404).json({
+        message: "Member not found",
+      });
+    }
+
     if (
-  existingMember.status === "Unpaid" &&
-  req.body.status === "Paid"
-) {
-  req.body.paymentHistory = [
-    ...(existingMember.paymentHistory || []),
-    {
-      amount: req.body.fees,
-      paymentDate: new Date().toLocaleDateString("en-GB"),
-      paymentMethod: req.body.paymentMethod,
-    },
-  ];
-}
+      existingMember.status === "Unpaid" &&
+      req.body.status === "Paid"
+    ) {
+      req.body.paymentHistory = [
+        ...(existingMember.paymentHistory || []),
+        {
+          amount: req.body.fees,
+          paymentDate: new Date().toLocaleDateString("en-GB"),
+          paymentMethod: req.body.paymentMethod,
+        },
+      ];
+    }
+
     const updatedMember = await Member.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true }
+      {
+        new: true,
+        runValidators: true,
+      }
     );
-    console.log("Updated Member:", updatedMember);
 
     res.json({
       message: "✅ Member Updated Successfully",
@@ -114,4 +124,5 @@ try {
     });
   }
 });
+
 module.exports = router;
