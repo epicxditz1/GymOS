@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-
+import Login from "./components/Login";
+import Signup from "./components/Signup";
 import Dashboard from "./Dashboard";
 import Button from "./components/Button";
-
+import MemberCard from "./components/MemberCard";
+import Sidebar from "./components/Sidebar";
+import HomeDashboard from "./pages/HomeDashboard";
+import MembersPage from "./pages/MembersPage";
 function App() {
   // Navigation
   const [page, setPage] = useState("home");
@@ -16,6 +20,12 @@ function App() {
   const [joinDate, setJoinDate] = useState("");
   const [amount, setAmount] = useState("");
   const [photo, setPhoto] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [isLoggedIn, setIsLoggedIn] = useState(
+  !!localStorage.getItem("token")
+);
+const [authPage, setAuthPage] = useState("login");
 
   // Member Status
   const [status, setStatus] = useState("Unpaid");
@@ -44,14 +54,27 @@ const [paymentMethod, setPaymentMethod] = useState("Cash");
   // Backend Message
   const [apiMessage, setApiMessage] = useState("");
     useEffect(() => {
-    fetch("http://localhost:5000/api/members")
-      .then((res) => res.json())
-      .then((data) => {
-  console.log("API Data:", data);
-  setMembers(data);
-  console.log("State Updated");
+    const token = localStorage.getItem("token");
+
+fetch("http://localhost:5000/api/members", {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
 })
-      .catch((err) => console.error(err));
+  .then((res) => res.json())
+  .then((data) => {
+    console.log("API Data:", data);
+
+    if (Array.isArray(data)) {
+      setMembers(data);
+    } else {
+      console.log(data.message);
+      setMembers([]);
+    }
+
+    console.log("State Updated");
+  })
+  .catch((err) => console.error(err));
   }, []);
 
   useEffect(() => {
@@ -61,6 +84,8 @@ const [paymentMethod, setPaymentMethod] = useState("Cash");
       .catch((err) => console.error(err));
   }, []);
   function saveMember() {
+    console.log("isEditing:", isEditing);
+
   if (!name || !age || !membership || !phone || !joinDate || !amount) {
     alert("Please fill all fields!");
     return;
@@ -97,17 +122,46 @@ const [paymentMethod, setPaymentMethod] = useState("Cash");
     expiryDate: expiryDate.toISOString().split("T")[0],
   };
 
+  const formData = new FormData();
+
+Object.keys(memberData).forEach((key) => {
+  formData.append(key, memberData[key]);
+});
+
+console.log("PHOTO STATE:", photo);
+
+if (photo) {
+  formData.append("photo", photo);
+}
+
+for (let pair of formData.entries()) {
+  console.log(pair[0], pair[1]);
+}
   // UPDATE MEMBER
   if (isEditing) {
-    fetch(`http://localhost:5000/api/members/${members[editIndex]._id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(memberData),
-    })
+    const updateFormData = new FormData();
+
+Object.keys(memberData).forEach((key) => {
+  updateFormData.append(key, memberData[key]);
+});
+
+if (photo) {
+  updateFormData.append("photo", photo);
+}
+
+console.log("PHOTO STATE:", photo);
+
+for (let pair of updateFormData.entries()) {
+  console.log(pair[0], pair[1]);
+}
+
+fetch(`http://localhost:5000/api/members/${members[editIndex]._id}`, {
+  method: "PUT",
+  body: updateFormData,
+})
       .then((res) => res.json())
       .then((data) => {
+        console.log("UPDATE RESPONSE:", data);
         alert(data.message);
 
         const updatedMembers = members.map((member) =>
@@ -128,12 +182,9 @@ const [paymentMethod, setPaymentMethod] = useState("Cash");
 
   // ADD MEMBER
   fetch("http://localhost:5000/api/members", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(memberData),
-  })
+  method: "POST",
+  body: formData,
+})
     .then((res) => res.json())
     .then((data) => {
       alert(data.message);
@@ -298,7 +349,19 @@ function getExpiryStatus(expiryDate) {
   if (diffInDays <= 7)
     return `🟠 ${diffInDays} day(s) left`;
 
-  return "🟢 Active";
+  return `🟢 Active (${diffInDays} day(s) left)`;
+}
+if (!isLoggedIn) {
+  return authPage === "login" ? (
+    <Login
+      setIsLoggedIn={setIsLoggedIn}
+      goToSignup={() => setAuthPage("signup")}
+    />
+  ) : (
+    <Signup
+      goToLogin={() => setAuthPage("login")}
+    />
+  );
 }
 if (page === "add-member") {
   return (
@@ -316,23 +379,15 @@ if (page === "add-member") {
 
       <br /><br />
 
-      <input
+<input
   type="file"
+  name="photo"
   accept="image/*"
-  onChange={(e) => setPhoto(e.target.files[0])}
+  onChange={(e) => {
+    console.log("Selected file:", e.target.files[0]);
+    setPhoto(e.target.files[0]);
+  }}
 />
-{photo && (
-  <>
-    <p>✅ Selected: {photo.name}</p>
-
-    <img
-      src={URL.createObjectURL(photo)}
-      alt="Preview"
-      width="120"
-      style={{ borderRadius: "10px" }}
-    />
-  </>
-)}
 
 <br /><br />
 
@@ -418,18 +473,33 @@ if (page === "view-members") {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
+      <select
+  value={statusFilter}
+  onChange={(e) => setStatusFilter(e.target.value)}
+>
+  <option value="All">All Members</option>
+  <option value="Paid">Paid</option>
+  <option value="Unpaid">Unpaid</option>
+</select>
 
       <br /><br />
 
       {members.length === 0 ? (
         <p>No Members Found</p>
       ) : (
-        members
-          .filter((member) =>
-            member.name.toLowerCase().includes(search.toLowerCase())
-          )
-          .map((member, index) => (
-            <div key={member._id}>
+          members
+  .filter((member) => {
+    const matchesSearch =
+      member.name?.toLowerCase().includes(search.toLowerCase()) ||
+      member.phone?.includes(search);
+
+    const matchesStatus =
+      statusFilter === "All" || member.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  })
+  .map((member, index) => (
+  <div key={member._id}>
               <h3>{member.name}</h3>
 
               <p>Age: {member.age}</p>
@@ -440,7 +510,19 @@ if (page === "view-members") {
               <p>Attendance: {member.attendance}</p>
               <p>Join Date: {member.joinDate}</p>
               <p>Expiry Date: {member.expiryDate}</p>
-              <p>{getExpiryStatus(member.expiryDate)}</p>
+              <p
+  style={{
+    fontWeight: "bold",
+    color:
+      getExpiryStatus(member.expiryDate).includes("Expired")
+        ? "red"
+        : getExpiryStatus(member.expiryDate).includes("day(s) left")
+        ? "orange"
+        : "green",
+  }}
+>
+  {getExpiryStatus(member.expiryDate)}
+</p>
               <br />
 {/* TODO: Remove after View Details popup is finalized */}
 <button
@@ -478,6 +560,7 @@ setShowHistory(true);
                   setJoinDate(member.joinDate);
                   setAmount(member.fees);
                   setStatus(member.status);
+                  setPhoto(null);
 
                   setPage("add-member");
                 }}
@@ -501,14 +584,13 @@ setShowHistory(true);
 
       <h2>👤 Member Details</h2>
 
-      <button
-  onClick={() => {
-    setSelectedMember(selectedDetailsMember);
-    setShowHistory(true);
-  }}
->
-  📜 Payment History
-</button>
+      {selectedDetailsMember.photo && (
+  <img
+    src={selectedDetailsMember.photo}
+    alt={selectedDetailsMember.name}
+    className="member-photo"
+  />
+)}
 
 <br /><br />
 
@@ -522,6 +604,15 @@ setShowHistory(true);
       <p>Attendance: {selectedDetailsMember.attendance}</p>
       <p>Join Date: {selectedDetailsMember.joinDate}</p>
       <p>Expiry Date: {selectedDetailsMember.expiryDate}</p>
+
+      <button
+  onClick={() => {
+    setSelectedMember(selectedDetailsMember);
+    setShowHistory(true);
+  }}
+>
+  📜 Payment History
+</button>
 
       <button onClick={() => setShowMemberDetails(false)}>
         Close
@@ -650,8 +741,26 @@ if (page === "attendance") {
       {members.length === 0 ? (
         <p>No Members Found</p>
       ) : (
-        ((member, index) => (
-          <div key={member._id}>
+        members.map((member, index) => (
+          <div
+  key={member._id}
+  className="attendance-card"
+>
+
+          {member.photo && (
+  <img
+    src={member.photo}
+    alt={member.name}
+    width="100"
+    height="100"
+    style={{
+      borderRadius: "50%",
+      objectFit: "cover",
+      border: "2px solid #555",
+    }}
+  />
+)}
+
             <h3>{member.name}</h3>
 
             <p>
@@ -686,6 +795,61 @@ if (page === "attendance") {
     </div>
   );
 }
+if (page === "expiring-members") {
+  return (
+    <div className="container">
+      <h1>⚠️ Expiring Members</h1>
+
+      {members.filter((member) => {
+  if (!member.expiryDate) return false;
+
+  const today = new Date();
+  const expiry = new Date(member.expiryDate);
+
+  today.setHours(0, 0, 0, 0);
+  expiry.setHours(0, 0, 0, 0);
+
+  const diffInDays = Math.ceil(
+    (expiry - today) / (1000 * 60 * 60 * 24)
+  );
+
+  return diffInDays >= 0 && diffInDays <= 7;
+}).length === 0 ? (
+  <p>🎉 No memberships are expiring in the next 7 days.</p>
+) : (
+  members
+    .filter((member) => {
+      if (!member.expiryDate) return false;
+
+      const today = new Date();
+      const expiry = new Date(member.expiryDate);
+
+      today.setHours(0, 0, 0, 0);
+      expiry.setHours(0, 0, 0, 0);
+
+      const diffInDays = Math.ceil(
+        (expiry - today) / (1000 * 60 * 60 * 24)
+      );
+
+      return diffInDays >= 0 && diffInDays <= 7;
+    })
+    .map((member) => (
+      <div key={member._id}>
+        <h3>{member.name}</h3>
+        <p>📞 {member.phone}</p>
+        <p>{getExpiryStatus(member.expiryDate)}</p>
+        <hr />
+      </div>
+    ))
+)}
+
+      <button onClick={() => setPage("home")}>
+        Back
+      </button>
+    </div>
+  );
+}
+
 const paidMembers = members.filter(
   (member) => member.status === "Paid"
 ).length;
@@ -765,85 +929,13 @@ const expiringSoonMembers = members.filter(
     return diffInDays >= 0 && diffInDays <= 7;
   }
 ).length;
-return (
-  
-  <div className="container">
-    <Dashboard title="GYM OS 🏋️" />
 
-    <p>{apiMessage}</p>
-
-    <h2>Gym Management System</h2>
-    <p>Welcome Back 👋</p>
-    <p>Your complete Gym Management Dashboard</p>
-
-    <div className="dashboard-grid">
-
-      <div className="dashboard-card">
-        <h3>👥 Total Members</h3>
-        <h1>{members.length}</h1>
-      </div>
-
-      <div className="dashboard-card">
-  <h3>💸 Today's Collection</h3>
-  <h1>₹{todaysCollection}</h1>
-  
-</div>
-
-      <div className="dashboard-card">
-        <h3>💰 Total Fees</h3>
-        <h1>₹{totalFees}</h1>
-      </div>
-
-      <div className="dashboard-card">
-        <h3>✅ Paid Members</h3>
-        <h1>{paidMembers}</h1>
-      </div>
-
-      <div className="dashboard-card">
-        <h3>❌ Unpaid Members</h3>
-        <h1>{unpaidMembers}</h1>
-      </div>
-
-      <div className="dashboard-card">
-        <h3>🟢 Present Today</h3>
-        <h1>{presentMembers}</h1>
-      </div>
-
-      <div className="dashboard-card">
-        <h3>🔴 Absent Today</h3>
-        <h1>{absentMembers}</h1>
-      </div>
-
-      <div className="dashboard-card">
-        <h3>⚠️ Expiring Soon</h3>
-        <h1>{expiringSoonMembers}</h1>
-      </div>
-
-    </div>
-
-    <p>Designed & Developed by Mayank (@epicxditz1)</p>
-
-    <Button
-      text="Add Member"
-      onClick={() => setPage("add-member")}
-    />
-
-    <Button
-      text="View Members"
-      onClick={() => setPage("view-members")}
-    />
-
-    <Button
-      text="Fees"
-      onClick={() => setPage("fees")}
-    />
-
-    <Button
-  text="Attendance"
-  onClick={() => setPage("attendance")}
+if (page === "home") {
+  return <HomeDashboard
+  setPage={setPage}
+  members={members}
 />
-</div>
-);
+}
 }
 
 export default App;

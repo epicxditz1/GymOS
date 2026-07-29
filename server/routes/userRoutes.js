@@ -27,11 +27,13 @@ router.post("/signup", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = new User({
-      gymName,
-      ownerName,
-      email,
-      password: hashedPassword,
-    });
+  gymName,
+  ownerName,
+  email,
+  phone,
+  gymAddress,
+  password: hashedPassword,
+});
 
     await user.save();
 
@@ -47,5 +49,55 @@ router.post("/signup", async (req, res) => {
     });
   }
 });
+// Login
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
+    // Check user
+    const user = await User.findOne({ email });
+    console.log("User Found:", user);
+
+    if (!user) {
+      return res.status(400).json({
+        message: "User not found",
+      });
+    }
+
+    // Check password
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log("Password Match:", isMatch);
+
+    const token = jwt.sign(
+  { userId: user._id },
+  process.env.JWT_SECRET,
+  { expiresIn: "7d" }
+);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Invalid password",
+      });
+    }
+
+    res.status(200).json({
+  message: "Login Successful",
+  token,
+  user: {
+    _id: user._id,
+    gymName: user.gymName,
+    ownerName: user.ownerName,
+    email: user.email,
+    phone: user.phone,
+    gymAddress: user.gymAddress,
+    gymLogo: user.gymLogo,
+  },
+});
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+});
 module.exports = router;

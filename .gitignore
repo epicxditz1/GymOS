@@ -1,4 +1,120 @@
-node_modules/
-.env
-dist/
-*.log
+return (
+  <div className="min-h-screen bg-slate-900 text-white flex">
+    <Sidebar />
+
+    <div className="flex-1 ml-64 p-8">
+      <h1 className="text-4xl font-bold">Dashboard</h1>
+
+      <p className="text-slate-400 mt-2 text-lg">
+        Welcome back! Here's what's happening in your gym today.
+      </p>
+
+      <p className="text-slate-500 mb-8">
+        Manage members, fees, attendance and grow your gym — all in one place.
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mt-8">
+
+        {/* Total Members */}
+        <div className="bg-slate-800 rounded-2xl p-6 shadow-lg hover:shadow-cyan-500/20 hover:-translate-y-1 transition-all duration-300 border border-slate-700">
+
+          <div className="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center text-2xl">
+            👥
+          </div>
+
+          <p className="text-slate-400 text-sm font-medium mt-4">
+            Total Members
+          </p>
+
+          <h2 className="text-4xl font-bold mt-3">
+            {members.length}
+          </h2>
+
+          <p className="mt-4 text-sm text-emerald-400">
+            +12% from last month
+          </p>
+        </div>
+
+        {/* Today's Collection */}
+        <div className="bg-slate-800 rounded-2xl p-6 shadow-lg hover:shadow-cyan-500/20 hover:-translate-y-1 transition-all duration-300 border border-slate-700">
+          <h3>💸 Today's Collection</h3>
+          <h1>₹{todaysCollection}</h1>
+        </div>
+
+        {/* Total Fees */}
+        <div className="dashboard-card">
+          <h3>💰 Total Fees</h3>
+          <h1>₹{totalFees}</h1>
+        </div>
+
+        {/* Paid Members */}
+        <div className="dashboard-card">
+          <h3>✅ Paid Members</h3>
+          <h1>{paidMembers}</h1>
+        </div>
+
+        {/* Unpaid Members */}
+        <div className="dashboard-card">
+          <h3>❌ Unpaid Members</h3>
+          <h1>{unpaidMembers}</h1>
+        </div>
+
+        {/* Present Today */}
+        <div className="dashboard-card">
+          <h3>🟢 Present Today</h3>
+          <h1>{presentMembers}</h1>
+        </div>
+
+        {/* Absent Today */}
+        <div className="dashboard-card">
+          <h3>🔴 Absent Today</h3>
+          <h1>{absentMembers}</h1>
+        </div>
+
+        {/* Expiring Soon */}
+        <div className="dashboard-card">
+          <h3>⚠️ Expiring Soon</h3>
+          <h1>{expiringSoonMembers}</h1>
+        </div>
+
+      </div>
+
+      <p className="mt-10 text-center text-slate-500">
+        Designed & Developed by Mayank (@epicxditz1)
+      </p>
+
+      <Button
+        text="Add Member"
+        onClick={() => setPage("add-member")}
+      />
+
+      <Button
+        text="View Members"
+        onClick={() => setPage("view-members")}
+      />
+
+      <Button
+        text="Fees"
+        onClick={() => setPage("fees")}
+      />
+
+      <Button
+        text="Attendance"
+        onClick={() => setPage("attendance")}
+      />
+
+      <Button
+        text="Expiring Members"
+        onClick={() => setPage("expiring-members")}
+      />
+
+      <Button
+        text="Logout"
+        onClick={() => {
+          localStorage.removeItem("token");
+          setIsLoggedIn(false);
+        }}
+      />
+    </div>
+  </div>
+);

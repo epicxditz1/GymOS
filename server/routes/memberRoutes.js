@@ -3,11 +3,12 @@ const router = express.Router();
 
 const Member = require("../models/Member");
 const upload = require("../middleware/upload");
+const authMiddleware = require("../middleware/authMiddleware");
 
 // =======================
 // Save Member
 // =======================
-router.post("/", upload.single("photo"), async (req, res) => {
+router.post("/", authMiddleware, upload.single("photo"), async (req, res) => {
   try {
     console.log("BODY:", req.body);
     console.log("FILE:", req.file);
@@ -15,6 +16,12 @@ router.post("/", upload.single("photo"), async (req, res) => {
     if (req.file) {
       req.body.photo = req.file.path;
     }
+
+    console.log("USER:", req.user);
+
+    req.body.owner = req.user.userId;
+
+    console.log(req.body);
 
     const member = new Member(req.body);
     await member.save();
@@ -35,9 +42,11 @@ router.post("/", upload.single("photo"), async (req, res) => {
 // =======================
 // Get All Members
 // =======================
-router.get("/", async (req, res) => {
+router.get("/", authMiddleware, async (req, res) => {
   try {
-    const members = await Member.find().sort({ _id: -1 });
+    const members = await Member.find({
+  owner: req.user.userId,
+}).sort({ _id: -1 });
 
     res.status(200).json(members);
   } catch (error) {
@@ -52,9 +61,12 @@ router.get("/", async (req, res) => {
 // =======================
 // Delete Member
 // =======================
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authMiddleware, async (req, res) => {
   try {
-    await Member.findByIdAndDelete(req.params.id);
+    await Member.findOneAndDelete({
+  _id: req.params.id,
+  owner: req.user.userId,
+});
 
     res.json({
       message: "✅ Member Deleted Successfully",
@@ -71,7 +83,7 @@ router.delete("/:id", async (req, res) => {
 // =======================
 // Update Member
 // =======================
-router.put("/:id", upload.any(), async (req, res) => {
+router.put("/:id", authMiddleware, upload.any(), async (req, res) => {
   try {
     console.log("PUT ID:", req.params.id);
     console.log("REQ BODY:", req.body);
@@ -81,7 +93,10 @@ router.put("/:id", upload.any(), async (req, res) => {
       req.body.photo = req.files[0].path;
     }
 
-    const existingMember = await Member.findById(req.params.id);
+    const existingMember = await Member.findOne({
+  _id: req.params.id,
+  owner: req.user.userId,
+});
 
     if (!existingMember) {
       return res.status(404).json({
@@ -103,14 +118,17 @@ router.put("/:id", upload.any(), async (req, res) => {
       ];
     }
 
-    const updatedMember = await Member.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const updatedMember = await Member.findOneAndUpdate(
+  {
+    _id: req.params.id,
+    owner: req.user.userId,
+  },
+  req.body,
+  {
+    new: true,
+    runValidators: true,
+  }
+);
 
     res.json({
       message: "✅ Member Updated Successfully",
