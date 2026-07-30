@@ -8,6 +8,17 @@ import MemberCard from "./components/MemberCard";
 import Sidebar from "./components/Sidebar";
 import HomeDashboard from "./pages/HomeDashboard";
 import MembersPage from "./pages/MembersPage";
+import {
+  getMembers,
+  addMember,
+  updateMember,
+  deleteMemberById,
+  markAttendanceById,
+  receivePaymentById,
+} from "./services/memberService";
+import useMembers from "./hooks/useMembers";
+
+
 function App() {
   // Navigation
   const [page, setPage] = useState("home");
@@ -31,7 +42,7 @@ const [authPage, setAuthPage] = useState("login");
   const [status, setStatus] = useState("Unpaid");
 
   // Members
-  const [members, setMembers] = useState([]);
+  const { members, setMembers } = useMembers();
 
   // Search
   const [search, setSearch] = useState("");
@@ -50,40 +61,18 @@ const [selectedDetailsMember, setSelectedDetailsMember] = useState(null);
   const [showPaymentPopup, setShowPaymentPopup] = useState(false);
 const [paymentMember, setPaymentMember] = useState(null);
 const [paymentMethod, setPaymentMethod] = useState("Cash");
+const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // Backend Message
   const [apiMessage, setApiMessage] = useState("");
-    useEffect(() => {
-    const token = localStorage.getItem("token");
-
-fetch("http://localhost:5000/api/members", {
-  headers: {
-    Authorization: `Bearer ${token}`,
-  },
-})
-  .then((res) => res.json())
-  .then((data) => {
-    console.log("API Data:", data);
-
-    if (Array.isArray(data)) {
-      setMembers(data);
-    } else {
-      console.log(data.message);
-      setMembers([]);
-    }
-
-    console.log("State Updated");
-  })
-  .catch((err) => console.error(err));
-  }, []);
-
+   
   useEffect(() => {
     fetch("/api")
       .then((res) => res.json())
       .then((data) => setApiMessage(data.message))
       .catch((err) => console.error(err));
   }, []);
-  function saveMember() {
+  async function saveMember() {
     console.log("isEditing:", isEditing);
 
   if (!name || !age || !membership || !phone || !joinDate || !amount) {
@@ -155,49 +144,46 @@ for (let pair of updateFormData.entries()) {
   console.log(pair[0], pair[1]);
 }
 
-fetch(`http://localhost:5000/api/members/${members[editIndex]._id}`, {
-  method: "PUT",
-  body: updateFormData,
-})
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("UPDATE RESPONSE:", data);
-        alert(data.message);
+try {
+  const data = await updateMember(
+    members[editIndex]._id,
+    updateFormData
+  );
 
-        const updatedMembers = members.map((member) =>
-          member._id === data.member._id ? data.member : member
-        );
+  alert(data.message);
 
-        setMembers(updatedMembers);
+  const updatedMembers = members.map((member) =>
+    member._id === data.member._id ? data.member : member
+  );
 
-        resetForm();
-      })
-      .catch((err) => {
-        console.error(err);
-        alert("Error updating member");
-      });
+  setMembers(updatedMembers);
 
-    return;
+  resetForm();
+} catch (err) {
+  console.error(err);
+  alert("Error updating member");
+}
+
+return;
+    
   }
 
   // ADD MEMBER
-  fetch("http://localhost:5000/api/members", {
-  method: "POST",
-  body: formData,
-})
-    .then((res) => res.json())
-    .then((data) => {
-      alert(data.message);
+  const token = localStorage.getItem("token");
 
-      setMembers([...members, data.member]);
+try {
+  const data = await addMember(formData);
 
-      resetForm();
-    })
-    .catch((err) => {
-      console.error(err);
-      alert("Error saving member");
-    });
+  alert(data.message);
+
+  setMembers([...members, data.member]);
+
+  resetForm();
+} catch (err) {
+  console.error(err);
+  alert("Error saving member");
 }
+  }
 function resetForm() {
   setName("");
   setAge("");
@@ -220,18 +206,7 @@ async function deleteMember(memberId) {
   if (!confirmDelete) return;
 
   try {
-    const res = await fetch(
-      `http://localhost:5000/api/members/${memberId}`,
-      {
-        method: "DELETE",
-      }
-    );
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.message);
-    }
+    const data = await deleteMemberById(memberId);
 
     alert(data.message);
 
@@ -243,7 +218,8 @@ async function deleteMember(memberId) {
     alert(err.message);
   }
 }
-function markAttendance(index, attendanceStatus) {
+
+async function markAttendance(index, attendanceStatus) {
   const member = members[index];
 
   const updatedMember = {
@@ -251,20 +227,18 @@ function markAttendance(index, attendanceStatus) {
     attendance: attendanceStatus,
   };
 
-  fetch(`http://localhost:5000/api/members/${member._id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(updatedMember),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      const updatedMembers = [...members];
-      updatedMembers[index] = data.member;
-      setMembers(updatedMembers);
-    })
-    .catch((err) => console.error(err));
+ try {
+  const data = await markAttendanceById(
+    member._id,
+    updatedMember
+  );
+
+  const updatedMembers = [...members];
+  updatedMembers[index] = data.member;
+  setMembers(updatedMembers);
+} catch (err) {
+  console.error(err);
+}
 }
 function toggleFeeStatus(index) {
   const member = members[index];
@@ -279,13 +253,17 @@ function toggleFeeStatus(index) {
     status: newStatus,
   };
 
-  fetch(`http://localhost:5000/api/members/${member._id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(updatedMember),
-  })
+  const token = localStorage.getItem("token");
+
+fetch(`http://localhost:5000/api/members/${member._id}`, {
+  method: "PUT",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  },
+  body: JSON.stringify(updatedMember),
+})
+
     .then((res) => res.json())
     .then((data) => {
       console.log("Returned Member:", data.member);
@@ -300,7 +278,7 @@ function toggleFeeStatus(index) {
     })
     .catch((err) => console.error(err));
 }
-function receivePayment() {
+async function receivePayment() {
   const updatedMember = {
     ...paymentMember,
     status: "Paid",
@@ -312,26 +290,22 @@ function receivePayment() {
 
   alert("Receive Payment button clicked!");
 
-  fetch(`http://localhost:5000/api/members/${paymentMember._id}`, {
-  method: "PUT",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify(updatedMember),
-})
-  .then((res) => res.json())
-  .then((data) => {
-  console.log(data);
+  // Token fetch ke bahar
+  try {
+  const data = await receivePaymentById(
+    paymentMember._id,
+    updatedMember
+  );
 
   const updatedMembers = members.map((member) =>
     member._id === data.member._id ? data.member : member
   );
 
   setMembers(updatedMembers);
-
   setShowPaymentPopup(false);
-})
-  .catch((err) => console.error(err));
+} catch (err) {
+  console.error(err);
+}
 }
 function getExpiryStatus(expiryDate) {
   const today = new Date();
@@ -929,12 +903,21 @@ const expiringSoonMembers = members.filter(
     return diffInDays >= 0 && diffInDays <= 7;
   }
 ).length;
-
 if (page === "home") {
-  return <HomeDashboard
+  return (
+    <HomeDashboard
   setPage={setPage}
   members={members}
+  paidMembers={paidMembers}
+  unpaidMembers={unpaidMembers}
+  todaysCollection={todaysCollection}
+  presentMembers={presentMembers}
+  absentMembers={absentMembers}
+  expiringSoonMembers={expiringSoonMembers}
+  sidebarOpen={sidebarOpen}
+  setSidebarOpen={setSidebarOpen}
 />
+  );
 }
 }
 
