@@ -19,11 +19,15 @@ import {
 import useMembers from "./hooks/useMembers";
 import AddMemberPage from "./pages/AddMemberPage";
 import FeesPage from "./pages/FeesPage";
+import AttendancePage from "./pages/AttendancePage";
+import ExpiringMembersPage from "./pages/ExpiringMembersPage";
+import MemberDetailsModal from "./components/MemberDetailsModal";
 
 function App() {
   // Navigation
   const [page, setPage] = useState("home");
-
+const [selectedMember, setSelectedMember] = useState(null);
+const [showMemberDetails, setShowMemberDetails] = useState(false);
   // Form Fields
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
@@ -413,120 +417,21 @@ if (page === "fees") {
 }
 if (page === "attendance") {
   return (
-    <div className="container">
-      <h1>📅 Attendance</h1>
-
-      <p>Total Members: {members.length}</p>
-
-      {members.length === 0 ? (
-        <p>No Members Found</p>
-      ) : (
-        members.map((member, index) => (
-          <div
-  key={member._id}
-  className="attendance-card"
->
-
-          {member.photo && (
-  <img
-    src={member.photo}
-    alt={member.name}
-    width="100"
-    height="100"
-    style={{
-      borderRadius: "50%",
-      objectFit: "cover",
-      border: "2px solid #555",
-    }}
-  />
-)}
-
-            <h3>{member.name}</h3>
-
-            <p>
-              Attendance:{" "}
-              {member.attendance || "Absent"}
-            </p>
-
-            <button
-              onClick={() =>
-                markAttendance(index, "Present")
-              }
-            >
-              ✅ Present
-            </button>
-
-            <button
-              onClick={() =>
-                markAttendance(index, "Absent")
-              }
-            >
-              ❌ Absent
-            </button>
-
-            <hr />
-          </div>
-        ))
-      )}
-
-      <button onClick={() => setPage("home")}>
-        Back
-      </button>
-    </div>
+    <AttendancePage
+      members={members}
+      setPage={setPage}
+      markAttendance={markAttendance}
+    />
   );
 }
+
 if (page === "expiring-members") {
   return (
-    <div className="container">
-      <h1>⚠️ Expiring Members</h1>
-
-      {members.filter((member) => {
-  if (!member.expiryDate) return false;
-
-  const today = new Date();
-  const expiry = new Date(member.expiryDate);
-
-  today.setHours(0, 0, 0, 0);
-  expiry.setHours(0, 0, 0, 0);
-
-  const diffInDays = Math.ceil(
-    (expiry - today) / (1000 * 60 * 60 * 24)
-  );
-
-  return diffInDays >= 0 && diffInDays <= 7;
-}).length === 0 ? (
-  <p>🎉 No memberships are expiring in the next 7 days.</p>
-) : (
-  members
-    .filter((member) => {
-      if (!member.expiryDate) return false;
-
-      const today = new Date();
-      const expiry = new Date(member.expiryDate);
-
-      today.setHours(0, 0, 0, 0);
-      expiry.setHours(0, 0, 0, 0);
-
-      const diffInDays = Math.ceil(
-        (expiry - today) / (1000 * 60 * 60 * 24)
-      );
-
-      return diffInDays >= 0 && diffInDays <= 7;
-    })
-    .map((member) => (
-      <div key={member._id}>
-        <h3>{member.name}</h3>
-        <p>📞 {member.phone}</p>
-        <p>{getExpiryStatus(member.expiryDate)}</p>
-        <hr />
-      </div>
-    ))
-)}
-
-      <button onClick={() => setPage("home")}>
-        Back
-      </button>
-    </div>
+    <ExpiringMembersPage
+      members={members}
+      getExpiryStatus={getExpiryStatus}
+      setPage={setPage}
+    />
   );
 }
 

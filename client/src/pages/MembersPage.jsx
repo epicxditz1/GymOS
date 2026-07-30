@@ -1,3 +1,6 @@
+import { useState } from "react";
+import MemberDetailsModal from "../components/MemberDetailsModal";
+
 function MembersPage({
   members,
   search,
@@ -8,6 +11,10 @@ function MembersPage({
   deleteMember,
   startEdit,
 }) {
+
+  const [selectedMember, setSelectedMember] = useState(null);
+const [showMemberDetails, setShowMemberDetails] = useState(false);
+
   return (
     <div className="container">
       <h1>📋 All Members</h1>
@@ -62,6 +69,15 @@ function MembersPage({
               </button>
 
               <button
+  onClick={() => {
+    setSelectedMember(member);
+    setShowMemberDetails(true);
+  }}
+>
+  👁️ View
+</button>
+
+              <button
                 onClick={() => startEdit(member)}
               >
                 ✏️ Edit
@@ -71,6 +87,22 @@ function MembersPage({
             </div>
           ))
       )}
+
+      <MemberDetailsModal
+  member={selectedMember}
+  show={showMemberDetails}
+  onClose={() => setShowMemberDetails(false)}
+  onEdit={() => {
+    startEdit(selectedMember);
+    setShowMemberDetails(false);
+  }}
+  onDelete={() => {
+    if (!selectedMember) return;
+
+    deleteMember(selectedMember._id);
+    setShowMemberDetails(false);
+  }}
+/>
 
       <button onClick={() => setPage("home")}>
         Back
