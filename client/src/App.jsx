@@ -18,7 +18,7 @@ import {
 } from "./services/memberService";
 import useMembers from "./hooks/useMembers";
 import AddMemberPage from "./pages/AddMemberPage";
-
+import FeesPage from "./pages/FeesPage";
 
 function App() {
   // Navigation
@@ -196,6 +196,27 @@ function resetForm() {
 
   setPage("view-members");
 }
+
+function startEdit(member) {
+  setName(member.name);
+  setAge(member.age);
+  setMembership(member.membership);
+  setPhone(member.phone);
+  setJoinDate(member.joinDate);
+  setAmount(member.fees);
+
+  setStatus(member.status);
+
+  const index = members.findIndex(
+    (m) => m._id === member._id
+  );
+
+  setEditIndex(index);
+  setIsEditing(true);
+
+  setPage("add-member");
+}
+
 async function deleteMember(memberId) {
   const confirmDelete = window.confirm(
     "Are you sure you want to delete this member?"
@@ -363,88 +384,31 @@ if (page === "add-member") {
 if (page === "view-members") {
   return (
     <MembersPage
-  members={members}
-  search={search}
-  setSearch={setSearch}
-  setPage={setPage}
-/>
+      members={members}
+      search={search}
+      setSearch={setSearch}
+      setPage={setPage}
+      statusFilter={statusFilter}
+      setStatusFilter={setStatusFilter}
+      deleteMember={deleteMember}
+      startEdit={startEdit}
+    />
   );
 }
 if (page === "fees") {
   return (
-    <div className="container">
-      <h1>💰 Fees Management</h1>
-
-      {members.length === 0 ? (
-        <p>No Members Found</p>
-      ) : (
-        members.map((member, index) => (
-          <div key={member._id}>
-            <h3>{member.name}</h3>
-
-            <p>Amount: ₹{member.fees}</p>
-
-            <p>Status: {member.status}</p>
-
-           <button
-  onClick={() => {
-    setPaymentMember(member);
-    setShowPaymentPopup(true);
-  }}
->
-  💵 Receive Payment
-</button>
-{/* TODO: Remove this button after payment flow is finalized */}
-            <button onClick={() => toggleFeeStatus(index)}>
-              Change Status
-            </button>
-
-            <hr />
-          </div>
-        ))
-      )}
-
-      {showPaymentPopup && paymentMember && (
-  <div className="history-popup">
-    <div className="history-box">
-
-      <h2>💵 Receive Payment</h2>
-
-      <h3>{paymentMember.name}</h3>
-
-      <p>Amount: ₹{paymentMember.fees}</p>
-
-      <p>Select Payment Method</p>
-
-      <select
-  value={paymentMethod}
-  onChange={(e) => setPaymentMethod(e.target.value)}
->
-  <option value="Cash">Cash</option>
-  <option value="UPI">UPI</option>
-  <option value="Card">Card</option>
-</select>
-
-      <br /><br />
-
-     <button onClick={receivePayment}>
-  ✅ Receive Payment
-</button>
-
-      <button
-        onClick={() => setShowPaymentPopup(false)}
-      >
-        ❌ Cancel
-      </button>
-
-    </div>
-  </div>
-)}
-
-      <button onClick={() => setPage("home")}>
-        Back
-      </button>
-    </div>
+    <FeesPage
+  members={members}
+  setPage={setPage}
+  setPaymentMember={setPaymentMember}
+  setShowPaymentPopup={setShowPaymentPopup}
+  showPaymentPopup={showPaymentPopup}
+  paymentMember={paymentMember}
+  paymentMethod={paymentMethod}
+  setPaymentMethod={setPaymentMethod}
+  receivePayment={receivePayment}
+  toggleFeeStatus={toggleFeeStatus}
+/>
   );
 }
 if (page === "attendance") {
