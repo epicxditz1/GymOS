@@ -42,7 +42,11 @@ const [authPage, setAuthPage] = useState("login");
   const [status, setStatus] = useState("Unpaid");
 
   // Members
-  const { members, setMembers } = useMembers();
+  const {
+  members,
+  setMembers,
+  editMember,
+} = useMembers();
 
   // Search
   const [search, setSearch] = useState("");
@@ -145,23 +149,17 @@ for (let pair of updateFormData.entries()) {
 }
 
 try {
-  const data = await updateMember(
-    members[editIndex]._id,
-    updateFormData
-  );
+  const data = await editMember(
+  members[editIndex]._id,
+  updateFormData
+);
 
   alert(data.message);
-
-  const updatedMembers = members.map((member) =>
-    member._id === data.member._id ? data.member : member
-  );
-
-  setMembers(updatedMembers);
 
   resetForm();
 } catch (err) {
   console.error(err);
-  alert("Error updating member");
+  alert(err.message);
 }
 
 return;
@@ -172,11 +170,9 @@ return;
   const token = localStorage.getItem("token");
 
 try {
-  const data = await addMember(formData);
+  const data = await saveMember(formData);
 
   alert(data.message);
-
-  setMembers([...members, data.member]);
 
   resetForm();
 } catch (err) {
