@@ -93,6 +93,18 @@ router.put("/:id", authMiddleware, upload.any(), async (req, res) => {
       req.body.photo = req.files[0].path;
     }
 
+    console.log("paymentHistory value:", req.body.paymentHistory);
+    console.log("paymentHistory type:", typeof req.body.paymentHistory);
+
+    if (
+  req.body.paymentHistory &&
+  typeof req.body.paymentHistory === "string"
+) {
+  req.body.paymentHistory = JSON.parse(
+    req.body.paymentHistory
+  );
+}
+
     const existingMember = await Member.findOne({
   _id: req.params.id,
   owner: req.user.userId,
@@ -104,19 +116,22 @@ router.put("/:id", authMiddleware, upload.any(), async (req, res) => {
       });
     }
 
-    if (
-      existingMember.status === "Unpaid" &&
-      req.body.status === "Paid"
-    ) {
-      req.body.paymentHistory = [
-        ...(existingMember.paymentHistory || []),
-        {
-          amount: req.body.fees,
-          paymentDate: new Date().toLocaleDateString("en-GB"),
-          paymentMethod: req.body.paymentMethod,
-        },
-      ];
-    }
+    const paymentHistory =
+  existingMember.paymentHistory || [];
+
+if (
+  req.body.status === "Paid" &&
+  req.body.paymentMethod
+) {
+  paymentHistory.push({
+    amount: req.body.fees,
+    paymentDate: new Date().toLocaleDateString("en-GB"),
+    paymentMethod: req.body.paymentMethod,
+    plan: req.body.membership,
+  });
+}
+
+req.body.paymentHistory = paymentHistory;
 
     const updatedMember = await Member.findOneAndUpdate(
   {

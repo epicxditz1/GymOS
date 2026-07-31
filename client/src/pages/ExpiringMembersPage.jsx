@@ -2,6 +2,7 @@ function ExpiringMembersPage({
   members,
   getExpiryStatus,
   setPage,
+  setSelectedMember,
 }) {
   const expiringMembers = members.filter((member) => {
     if (!member.expiryDate) return false;
@@ -28,11 +29,21 @@ function ExpiringMembersPage({
       ) : (
         expiringMembers.map((member) => (
           <div key={member._id}>
-            <h3>{member.name}</h3>
-            <p>📞 {member.phone}</p>
-            <p>{getExpiryStatus(member.expiryDate)}</p>
-            <hr />
-          </div>
+  <h3>{member.name}</h3>
+  <p>📞 {member.phone}</p>
+  <p>{getExpiryStatus(member.expiryDate)}</p>
+
+  <button
+    onClick={() => {
+      setSelectedMember(member);
+      setPage("member-profile");
+    }}
+  >
+    View Profile
+  </button>
+
+  <hr />
+</div>
         ))
       )}
 

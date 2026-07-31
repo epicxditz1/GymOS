@@ -1,21 +1,26 @@
 const express = require("express");
 const router = express.Router();
 
-const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const User = require("../models/User");
+const authMiddleware = require("../middleware/authMiddleware");
+const upload = require("../middleware/upload");
+
+// =======================
 // Signup
+// =======================
 router.post("/signup", async (req, res) => {
   try {
     const {
-  gymName,
-  ownerName,
-  email,
-  phone,
-  gymAddress,
-  password,
-} = req.body;
+      gymName,
+      ownerName,
+      email,
+      phone,
+      gymAddress,
+      password,
+    } = req.body;
 
     const existingUser = await User.findOne({ email });
 
@@ -24,22 +29,31 @@ router.post("/signup", async (req, res) => {
         message: "User already exists",
       });
     }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = new User({
-  gymName,
-  ownerName,
-  email,
-  phone,
-  gymAddress,
-  password: hashedPassword,
-});
+      gymName,
+      ownerName,
+      email,
+      phone,
+      gymAddress,
+      password: hashedPassword,
+    });
 
     await user.save();
 
     res.status(201).json({
       message: "Signup Successful",
-      user,
+      user: {
+        _id: user._id,
+        gymName: user.gymName,
+        ownerName: user.ownerName,
+        email: user.email,
+        phone: user.phone,
+        gymAddress: user.gymAddress,
+        gymLogo: user.gymLogo,
+      },
     });
   } catch (error) {
     console.error(error);
@@ -49,14 +63,15 @@ router.post("/signup", async (req, res) => {
     });
   }
 });
+
+// =======================
 // Login
+// =======================
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Check user
     const user = await User.findOne({ email });
-    console.log("User Found:", user);
 
     if (!user) {
       return res.status(400).json({
@@ -64,15 +79,10 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    // Check password
-    const isMatch = await bcrypt.compare(password, user.password);
-    console.log("Password Match:", isMatch);
-
-    const token = jwt.sign(
-  { userId: user._id },
-  process.env.JWT_SECRET,
-  { expiresIn: "7d" }
-);
+    const isMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
 
     if (!isMatch) {
       return res.status(400).json({
@@ -80,24 +90,114 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    res.status(200).json({
-  message: "Login Successful",
-  token,
-  user: {
-    _id: user._id,
-    gymName: user.gymName,
-    ownerName: user.ownerName,
-    email: user.email,
-    phone: user.phone,
-    gymAddress: user.gymAddress,
-    gymLogo: user.gymLogo,
-  },
-});
+    const token = jwt.sign(
+      {
+        userId: user._id,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
 
+    res.status(200).json({
+      message: "Login Successful",
+      token,
+      user: {
+        _id: user._id,
+        gymName: user.gymName,
+        ownerName: user.ownerName,
+        email: user.email,
+        phone: user.phone,
+        gymAddress: user.gymAddress,
+        gymLogo: user.gymLogo,
+      },
+    });
   } catch (error) {
+    console.error(error);
+
     res.status(500).json({
       message: error.message,
     });
   }
 });
+
+// =======================
+// Get Logged In User
+// =======================
+router.get("/me", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+});
+
+// =======================
+// Update Logged In User
+// =======================
+router.put(
+  "/me",
+  authMiddleware,
+  upload.single("gymLogo"),
+  async (req, res) => {
+    try {
+      console.log("========== UPDATE OWNER ==========");
+      console.log("Body:", req.body);
+      console.log("File:", req.file);
+
+      const user = await User.findById(req.user.userId);
+
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found",
+        });
+      }
+
+      const {
+        gymName,
+        ownerName,
+        phone,
+        gymAddress,
+      } = req.body;
+
+      if (gymName) user.gymName = gymName;
+      if (ownerName) user.ownerName = ownerName;
+      if (phone) user.phone = phone;
+      if (gymAddress) user.gymAddress = gymAddress;
+
+      if (req.file) {
+        user.gymLogo = req.file.path;
+      }
+
+      await user.save();
+
+      console.log("Updated User:", user);
+
+      res.status(200).json({
+        message: "Profile updated successfully",
+        user,
+      });
+    } catch (error) {
+      console.error("Update Error:", error);
+
+      res.status(500).json({
+        message: error.message,
+      });
+    }
+  }
+);
+
 module.exports = router;

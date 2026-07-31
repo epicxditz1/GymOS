@@ -1,535 +1,696 @@
 import { useState, useEffect } from "react";
 import "./App.css";
+
 import Login from "./components/Login";
 import Signup from "./components/Signup";
-import Dashboard from "./Dashboard";
-import Button from "./components/Button";
-import MemberCard from "./components/MemberCard";
-import Sidebar from "./components/Sidebar";
+
 import HomeDashboard from "./pages/HomeDashboard";
 import MembersPage from "./pages/MembersPage";
-import {
-  getMembers,
-  addMember,
-  updateMember,
-  deleteMemberById,
-  markAttendanceById,
-  receivePaymentById,
-} from "./services/memberService";
-import useMembers from "./hooks/useMembers";
+import MemberProfile from "./pages/MemberProfile";
 import AddMemberPage from "./pages/AddMemberPage";
 import FeesPage from "./pages/FeesPage";
 import AttendancePage from "./pages/AttendancePage";
 import ExpiringMembersPage from "./pages/ExpiringMembersPage";
-import MemberDetailsModal from "./components/MemberDetailsModal";
+import OwnerProfile from "./pages/OwnerProfile";
+
+import { toast } from "sonner";
+
+import { getExpiryStatus } from "./utils/dateUtils";
+
+import {
+  deleteMemberById,
+  markAttendanceById,
+  receivePaymentById,
+} from "./services/memberService";
+
+import useMembers from "./hooks/useMembers";
+import useDashboardStats from "./hooks/useDashboardStats";
 
 function App() {
-  // Navigation
+  /* ==========================================================
+                        NAVIGATION
+  ========================================================== */
+
   const [page, setPage] = useState("home");
-const [selectedMember, setSelectedMember] = useState(null);
-const [showMemberDetails, setShowMemberDetails] = useState(false);
-  // Form Fields
+  const [selectedMember, setSelectedMember] = useState(null);
+
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  /* ==========================================================
+                      AUTHENTICATION
+  ========================================================== */
+
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    !!localStorage.getItem("token")
+  );
+
+  const [authPage, setAuthPage] =
+    useState("login");
+
+  /* ==========================================================
+                    MEMBER FORM
+  ========================================================== */
+
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
-  const [membership, setMembership] = useState("");
+  const [membership, setMembership] =
+    useState("");
   const [phone, setPhone] = useState("");
-  const [joinDate, setJoinDate] = useState("");
+  const [joinDate, setJoinDate] =
+    useState("");
   const [amount, setAmount] = useState("");
   const [photo, setPhoto] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [isLoggedIn, setIsLoggedIn] = useState(
-  !!localStorage.getItem("token")
-);
-const [authPage, setAuthPage] = useState("login");
 
-  // Member Status
-  const [status, setStatus] = useState("Unpaid");
+  const [status, setStatus] =
+    useState("Unpaid");
 
-  // Members
-  const {
-  members,
-  setMembers,
-  saveMember,
-  editMember,
-} = useMembers();
+  /* ==========================================================
+                  SEARCH & FILTER
+  ========================================================== */
 
-  // Search
   const [search, setSearch] = useState("");
 
-  // Edit
-  const [isEditing, setIsEditing] = useState(false);
+  const [statusFilter, setStatusFilter] =
+    useState("All");
 
-  const [selectedMember, setSelectedMember] = useState(null);
-const [showHistory, setShowHistory] = useState(false);
+  /* ==========================================================
+                      EDIT MODE
+  ========================================================== */
 
-const [showMemberDetails, setShowMemberDetails] = useState(false);
-const [selectedDetailsMember, setSelectedDetailsMember] = useState(null);
+  const [isEditing, setIsEditing] =
+    useState(false);
 
-  const [editIndex, setEditIndex] = useState(null);
+  const [editIndex, setEditIndex] =
+    useState(null);
 
-  const [showPaymentPopup, setShowPaymentPopup] = useState(false);
-const [paymentMember, setPaymentMember] = useState(null);
-const [paymentMethod, setPaymentMethod] = useState("Cash");
-const [sidebarOpen, setSidebarOpen] = useState(true);
+  /* ==========================================================
+                    PAYMENT POPUP
+  ========================================================== */
 
-  // Backend Message
-  const [apiMessage, setApiMessage] = useState("");
-   
+  const [showPaymentPopup,
+    setShowPaymentPopup] =
+    useState(false);
+
+  const [paymentMember,
+    setPaymentMember] =
+    useState(null);
+
+  const [paymentMethod,
+    setPaymentMethod] =
+    useState("Cash");
+
+  /* ==========================================================
+                    MEMBERS HOOK
+  ========================================================== */
+
+  const {
+    members,
+    setMembers,
+    saveMember,
+    editMember,
+  } = useMembers();
+
+  /* ==========================================================
+                  PAYMENT HISTORY
+  ========================================================== */
+
+  const [paymentHistory,
+    setPaymentHistory] =
+    useState([]);
+
+  /* ==========================================================
+                  LOAD PAYMENT HISTORY
+  ========================================================== */
+
+  useEffect(() => {
+    const savedHistory =
+      localStorage.getItem(
+        "paymentHistory"
+      );
+
+    if (savedHistory) {
+      setPaymentHistory(
+        JSON.parse(savedHistory)
+      );
+    }
+  }, []);
+
+  /* ==========================================================
+                    API TEST
+  ========================================================== */
+
   useEffect(() => {
     fetch("/api")
       .then((res) => res.json())
-      .then((data) => setApiMessage(data.message))
-      .catch((err) => console.error(err));
+      .then((data) =>
+        console.log(data.message)
+      )
+      .catch((err) =>
+        console.error(err)
+      );
   }, []);
-async function handleSaveMember() {
-    console.log("isEditing:", isEditing);
+    /* ==========================================================
+                      SAVE MEMBER
+  ========================================================== */
 
-  if (!name || !age || !membership || !phone || !joinDate || !amount) {
-    alert("Please fill all fields!");
-    return;
+  async function handleSaveMember() {
+    if (
+      !name ||
+      !age ||
+      !membership ||
+      !phone ||
+      !joinDate ||
+      !amount
+    ) {
+      toast.error("Please fill all fields");
+      return;
+    }
+
+    const expiryDate = new Date(joinDate);
+
+    switch (membership) {
+      case "1 Month":
+        expiryDate.setMonth(expiryDate.getMonth() + 1);
+        break;
+
+      case "3 Months":
+        expiryDate.setMonth(expiryDate.getMonth() + 3);
+        break;
+
+      case "6 Months":
+        expiryDate.setMonth(expiryDate.getMonth() + 6);
+        break;
+
+      case "12 Months":
+        expiryDate.setFullYear(
+          expiryDate.getFullYear() + 1
+        );
+        break;
+
+      default:
+        break;
+    }
+
+    const memberData = {
+      name,
+      age,
+      membership,
+      phone,
+      fees: Number(amount),
+      joinDate,
+      status,
+      attendance: "Absent",
+      expiryDate: expiryDate
+        .toISOString()
+        .split("T")[0],
+    };
+
+    const formData = new FormData();
+
+    Object.entries(memberData).forEach(
+      ([key, value]) => {
+        formData.append(key, value);
+      }
+    );
+
+    if (photo) {
+      formData.append("photo", photo);
+    }
+
+    /* -------------------------
+          UPDATE MEMBER
+    -------------------------- */
+
+    if (isEditing) {
+      try {
+        const data = await editMember(
+          members[editIndex]._id,
+          formData
+        );
+
+        toast.success(data.message);
+
+        resetForm();
+      } catch (err) {
+        console.error(err);
+        toast.error(
+          err.message ||
+            "Failed to update member"
+        );
+      }
+
+      return;
+    }
+
+    /* -------------------------
+            ADD MEMBER
+    -------------------------- */
+
+    try {
+      const data =
+        await saveMember(formData);
+
+      toast.success(data.message);
+
+      resetForm();
+    } catch (err) {
+      console.error(err);
+      toast.error(
+        err.message ||
+          "Error saving member"
+      );
+    }
   }
 
-  const expiryDate = new Date(joinDate);
+  /* ==========================================================
+                      RESET FORM
+  ========================================================== */
 
-  switch (membership) {
-    case "1 Month":
-      expiryDate.setMonth(expiryDate.getMonth() + 1);
-      break;
-    case "3 Months":
-      expiryDate.setMonth(expiryDate.getMonth() + 3);
-      break;
-    case "6 Months":
-      expiryDate.setMonth(expiryDate.getMonth() + 6);
-      break;
-    case "12 Months":
-      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-      break;
+  function resetForm() {
+    setName("");
+    setAge("");
+    setMembership("");
+    setPhone("");
+    setJoinDate("");
+    setAmount("");
+
+    setStatus("Unpaid");
+
+    setPhoto(null);
+
+    setIsEditing(false);
+    setEditIndex(null);
+
+    setPage("view-members");
+  }
+
+  /* ==========================================================
+                      START EDIT
+  ========================================================== */
+
+  function startEdit(member) {
+    setName(member.name);
+    setAge(member.age);
+    setMembership(member.membership);
+    setPhone(member.phone);
+    setJoinDate(member.joinDate);
+    setAmount(member.fees);
+
+    setStatus(member.status);
+
+    setPhoto(member.photo || null);
+
+    const index = members.findIndex(
+      (m) => m._id === member._id
+    );
+
+    setEditIndex(index);
+    setIsEditing(true);
+
+    setPage("add-member");
+  }
+    /* ==========================================================
+                    DELETE MEMBER
+  ========================================================== */
+
+  async function deleteMember(memberId) {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this member?"
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      const data = await deleteMemberById(memberId);
+
+      toast.success(data.message);
+
+      setMembers((prevMembers) =>
+        prevMembers.filter(
+          (member) => member._id !== memberId
+        )
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error(
+        err.message ||
+          "Failed to delete member"
+      );
+    }
+  }
+
+  /* ==========================================================
+                RENEW MEMBERSHIP
+  ========================================================== */
+
+  async function handleRenewMembership({
+    memberId,
+    plan,
+    paymentMethod,
+    newExpiryDate,
+  }) {
+    // TODO:
+    // Replace this with renewMemberById()
+    // after backend API is created.
+
+    const updatedMembers = members.map(
+      (member) =>
+        member._id === memberId
+          ? {
+              ...member,
+              membership: plan.title,
+              fees: plan.price,
+              status: "Paid",
+              paymentMethod,
+              expiryDate: newExpiryDate,
+            }
+          : member
+    );
+
+    setMembers(updatedMembers);
+
+    const payment = {
+      id: Date.now(),
+      memberId,
+      amount: plan.price,
+      plan: plan.title,
+      paymentMethod,
+      paymentDate:
+        new Date().toLocaleDateString(
+          "en-GB"
+        ),
+    };
+
+    const updatedHistory = [
+      payment,
+      ...paymentHistory,
+    ];
+
+    setPaymentHistory(updatedHistory);
+
+    localStorage.setItem(
+      "paymentHistory",
+      JSON.stringify(updatedHistory)
+    );
+
+    toast.success(
+      "Membership renewed successfully"
+    );
+  }
+
+  /* ==========================================================
+                MARK ATTENDANCE
+  ========================================================== */
+
+  async function markAttendance(
+    memberId,
+    attendanceStatus
+  ) {
+    try {
+      const member = members.find(
+        (m) => m._id === memberId
+      );
+
+      if (!member) {
+        toast.error("Member not found");
+        return;
+      }
+
+      const updatedMember = {
+        ...member,
+        attendance: attendanceStatus,
+      };
+
+      const data =
+        await markAttendanceById(
+          memberId,
+          updatedMember
+        );
+
+      setMembers((prevMembers) =>
+        prevMembers.map((member) =>
+          member._id === memberId
+            ? data.member
+            : member
+        )
+      );
+
+      toast.success(
+        `Attendance marked as ${attendanceStatus}`
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error(
+        "Failed to mark attendance"
+      );
+    }
+  }
+
+  /* ==========================================================
+                RECEIVE PAYMENT
+  ========================================================== */
+
+  async function receivePayment() {
+    if (!paymentMember) {
+      toast.error("No member selected");
+      return;
+    }
+
+    toast.info("Processing payment...");
+
+    const updatedMember = {
+      ...paymentMember,
+      status: "Paid",
+      paymentMethod,
+    };
+
+    try {
+      const data =
+        await receivePaymentById(
+          paymentMember._id,
+          updatedMember
+        );
+
+      setMembers((prevMembers) =>
+        prevMembers.map((member) =>
+          member._id ===
+          data.member._id
+            ? data.member
+            : member
+        )
+      );
+
+      setShowPaymentPopup(false);
+      setPaymentMember(null);
+      setPaymentMethod("Cash");
+
+      toast.success(data.message);
+    } catch (err) {
+      console.error(err);
+      toast.error(
+        err.message ||
+          "Payment failed"
+      );
+    }
+  }
+    /* ==========================================================
+                    AUTH PAGES
+  ========================================================== */
+
+  if (!isLoggedIn) {
+    return authPage === "login" ? (
+      <Login
+        setIsLoggedIn={setIsLoggedIn}
+        goToSignup={() => setAuthPage("signup")}
+      />
+    ) : (
+      <Signup
+        goToLogin={() => setAuthPage("login")}
+      />
+    );
+  }
+
+  /* ==========================================================
+                    PAGE ROUTING
+  ========================================================== */
+
+  switch (page) {
+    case "add-member":
+      return (
+        <AddMemberPage
+          name={name}
+          setName={setName}
+          age={age}
+          setAge={setAge}
+          membership={membership}
+          setMembership={setMembership}
+          phone={phone}
+          setPhone={setPhone}
+          joinDate={joinDate}
+          setJoinDate={setJoinDate}
+          amount={amount}
+          setAmount={setAmount}
+          status={status}
+          setStatus={setStatus}
+          photo={photo}
+          setPhoto={setPhoto}
+          isEditing={isEditing}
+          saveMember={handleSaveMember}
+          setPage={setPage}
+        />
+      );
+
+    case "member-profile":
+      return (
+        <MemberProfile
+          member={selectedMember}
+          setPage={setPage}
+          startEdit={startEdit}
+          setMembers={setMembers}
+          onRenew={handleRenewMembership}
+        />
+      );
+
+    case "view-members":
+      return (
+        <MembersPage
+          members={members}
+          search={search}
+          setSearch={setSearch}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          deleteMember={deleteMember}
+          startEdit={startEdit}
+          setPage={setPage}
+          selectedMember={selectedMember}
+          setSelectedMember={setSelectedMember}
+        />
+      );
+
+    case "fees":
+      return (
+        <FeesPage
+          members={members}
+          setPage={setPage}
+          setPaymentMember={setPaymentMember}
+          setShowPaymentPopup={setShowPaymentPopup}
+          showPaymentPopup={showPaymentPopup}
+          paymentMember={paymentMember}
+          paymentMethod={paymentMethod}
+          setPaymentMethod={setPaymentMethod}
+          receivePayment={receivePayment}
+        />
+      );
+
+    case "attendance":
+      return (
+        <AttendancePage
+          members={members}
+          setPage={setPage}
+          markAttendance={markAttendance}
+        />
+      );
+
+    case "expiring-members":
+      return (
+        <ExpiringMembersPage
+          members={members}
+          getExpiryStatus={getExpiryStatus}
+          setPage={setPage}
+          setSelectedMember={setSelectedMember}
+        />
+      );
+
+    case "owner-profile":
+      return (
+        <OwnerProfile
+          setPage={setPage}
+        />
+      );
+
+    case "home":
     default:
       break;
   }
 
-  const memberData = {
-    name,
-    age,
-    membership,
-    phone,
-    fees: Number(amount),
-    joinDate,
-    status,
-    attendance: "Absent",
-    expiryDate: expiryDate.toISOString().split("T")[0],
-  };
+  /* ==========================================================
+                  DASHBOARD STATISTICS
+  ========================================================== */
 
-  const formData = new FormData();
+  const {
+    paidMembers,
+    unpaidMembers,
+  } = useDashboardStats(members);
 
-Object.keys(memberData).forEach((key) => {
-  formData.append(key, memberData[key]);
-});
-
-console.log("PHOTO STATE:", photo);
-
-if (photo) {
-  formData.append("photo", photo);
-}
-
-for (let pair of formData.entries()) {
-  console.log(pair[0], pair[1]);
-}
-  // UPDATE MEMBER
-  if (isEditing) {
-    const updateFormData = new FormData();
-
-Object.keys(memberData).forEach((key) => {
-  updateFormData.append(key, memberData[key]);
-});
-
-if (photo) {
-  updateFormData.append("photo", photo);
-}
-
-console.log("PHOTO STATE:", photo);
-
-for (let pair of updateFormData.entries()) {
-  console.log(pair[0], pair[1]);
-}
-
-try {
-  const data = await editMember(
-  members[editIndex]._id,
-  updateFormData
-);
-
-  alert(data.message);
-
-  resetForm();
-} catch (err) {
-  console.error(err);
-  alert(err.message);
-}
-
-return;
-    
-  }
-
-  // ADD MEMBER
-  const token = localStorage.getItem("token");
-
-try {
-  const data = await saveMember(formData);
-
-  alert(data.message);
-
-  resetForm();
-} catch (err) {
-  console.error(err);
-  alert("Error saving member");
-}
-  }
-function resetForm() {
-  setName("");
-  setAge("");
-  setMembership("");
-  setPhone("");
-  setJoinDate("");
-  setAmount("");
-  setStatus("Unpaid");
-
-  setIsEditing(false);
-  setEditIndex(null);
-
-  setPage("view-members");
-}
-
-function startEdit(member) {
-  setName(member.name);
-  setAge(member.age);
-  setMembership(member.membership);
-  setPhone(member.phone);
-  setJoinDate(member.joinDate);
-  setAmount(member.fees);
-
-  setStatus(member.status);
-
-  const index = members.findIndex(
-    (m) => m._id === member._id
-  );
-
-  setEditIndex(index);
-  setIsEditing(true);
-
-  setPage("add-member");
-}
-
-async function deleteMember(memberId) {
-  const confirmDelete = window.confirm(
-    "Are you sure you want to delete this member?"
-  );
-
-  if (!confirmDelete) return;
-
-  try {
-    const data = await deleteMemberById(memberId);
-
-    alert(data.message);
-
-    setMembers((prevMembers) =>
-      prevMembers.filter((member) => member._id !== memberId)
-    );
-  } catch (err) {
-    console.error(err);
-    alert(err.message);
-  }
-}
-
-async function markAttendance(index, attendanceStatus) {
-  const member = members[index];
-
-  const updatedMember = {
-    ...member,
-    attendance: attendanceStatus,
-  };
-
- try {
-  const data = await markAttendanceById(
-    member._id,
-    updatedMember
-  );
-
-  const updatedMembers = [...members];
-  updatedMembers[index] = data.member;
-  setMembers(updatedMembers);
-} catch (err) {
-  console.error(err);
-}
-}
-function toggleFeeStatus(index) {
-  const member = members[index];
-
-  console.log("Toggle Status Clicked:", member.status);
-
-  const newStatus =
-    member.status === "Paid" ? "Unpaid" : "Paid";
-
-  const updatedMember = {
-    ...member,
-    status: newStatus,
-  };
-
-  const token = localStorage.getItem("token");
-
-fetch(`http://localhost:5000/api/members/${member._id}`, {
-  method: "PUT",
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-  },
-  body: JSON.stringify(updatedMember),
-})
-
-    .then((res) => res.json())
-    .then((data) => {
-      console.log("Returned Member:", data.member);
-      console.log(
-        "Returned Payment History:",
-        data.member.paymentHistory
-      );
-
-      const updatedMembers = [...members];
-      updatedMembers[index] = data.member;
-      setMembers(updatedMembers);
-    })
-    .catch((err) => console.error(err));
-}
-async function receivePayment() {
-  const updatedMember = {
-    ...paymentMember,
-    status: "Paid",
-    paymentMethod: paymentMethod,
-  };
-
-  console.log(updatedMember);
-  console.log("Selected Method:", paymentMethod);
-
-  alert("Receive Payment button clicked!");
-
-  // Token fetch ke bahar
-  try {
-  const data = await receivePaymentById(
-    paymentMember._id,
-    updatedMember
-  );
-
-  const updatedMembers = members.map((member) =>
-    member._id === data.member._id ? data.member : member
-  );
-
-  setMembers(updatedMembers);
-  setShowPaymentPopup(false);
-} catch (err) {
-  console.error(err);
-}
-}
-function getExpiryStatus(expiryDate) {
-  const today = new Date();
-  const expiry = new Date(expiryDate);
-
-  today.setHours(0, 0, 0, 0);
-  expiry.setHours(0, 0, 0, 0);
-
-  const diffInDays = Math.ceil(
-    (expiry - today) / (1000 * 60 * 60 * 24)
-  );
-
-  if (diffInDays < 0) return "🔴 Expired";
-
-  if (diffInDays <= 7)
-    return `🟠 ${diffInDays} day(s) left`;
-
-  return `🟢 Active (${diffInDays} day(s) left)`;
-}
-if (!isLoggedIn) {
-  return authPage === "login" ? (
-    <Login
-      setIsLoggedIn={setIsLoggedIn}
-      goToSignup={() => setAuthPage("signup")}
-    />
-  ) : (
-    <Signup
-      goToLogin={() => setAuthPage("login")}
-    />
-  );
-}
-if (page === "add-member") {
-  return (
-  <AddMemberPage
-    name={name}
-    setName={setName}
-    age={age}
-    setAge={setAge}
-    membership={membership}
-    setMembership={setMembership}
-    phone={phone}
-    setPhone={setPhone}
-    joinDate={joinDate}
-    setJoinDate={setJoinDate}
-    amount={amount}
-    setAmount={setAmount}
-    status={status}
-    setStatus={setStatus}
-    photo={photo}
-    setPhoto={setPhoto}
-    isEditing={isEditing}
-    saveMember={handleSaveMember}
-    setPage={setPage}
-  />
-);
-}
-if (page === "view-members") {
-  return (
-    <MembersPage
-      members={members}
-      search={search}
-      setSearch={setSearch}
-      setPage={setPage}
-      statusFilter={statusFilter}
-      setStatusFilter={setStatusFilter}
-      deleteMember={deleteMember}
-      startEdit={startEdit}
-    />
-  );
-}
-if (page === "fees") {
-  return (
-    <FeesPage
-  members={members}
-  setPage={setPage}
-  setPaymentMember={setPaymentMember}
-  setShowPaymentPopup={setShowPaymentPopup}
-  showPaymentPopup={showPaymentPopup}
-  paymentMember={paymentMember}
-  paymentMethod={paymentMethod}
-  setPaymentMethod={setPaymentMethod}
-  receivePayment={receivePayment}
-  toggleFeeStatus={toggleFeeStatus}
-/>
-  );
-}
-if (page === "attendance") {
-  return (
-    <AttendancePage
-      members={members}
-      setPage={setPage}
-      markAttendance={markAttendance}
-    />
-  );
-}
-
-if (page === "expiring-members") {
-  return (
-    <ExpiringMembersPage
-      members={members}
-      getExpiryStatus={getExpiryStatus}
-      setPage={setPage}
-    />
-  );
-}
-
-const paidMembers = members.filter(
-  (member) => member.status === "Paid"
-).length;
-
-const unpaidMembers = members.filter(
-  (member) => member.status === "Unpaid"
-).length;
-
-const totalFees = members.reduce(
-  (total, member) => total + Number(member.fees || 0),
-  0
-);
-
-const today = new Date().toLocaleDateString("en-GB");
-
-console.log("Today:", today);
-
-const todaysCollection = members.reduce((total, member) => {
-  const todayPayments =
-  
-    member.paymentHistory?.filter(
-      (payment) => {
-      console.log(
-  "Payment:",
-  JSON.stringify(payment.paymentDate),
-  "Today:",
-  JSON.stringify(today)
-);
-
-      const formattedDate = payment.paymentDate
-  .split("/")
-  .map((part, index) =>
-    index < 2 ? part.padStart(2, "0") : part
-  )
-  .join("/");
-
-return formattedDate === today;
-    }
-  ) || [];
-
-  console.log("Today's Payments:", todayPayments);
-
-  const todayTotal = todayPayments.reduce(
-    (sum, payment) => sum + Number(payment.amount || 0),
+  const totalFees = members.reduce(
+    (sum, member) =>
+      sum + Number(member.fees || 0),
     0
   );
 
-  return total + todayTotal;
-}, 0);
+  const presentMembers = members.filter(
+    (member) =>
+      member.attendance === "Present"
+  ).length;
 
-console.log("Members:", JSON.stringify(members, null, 2));
+  const absentMembers =
+    members.length - presentMembers;
 
-const presentMembers = members.filter(
-  (member) => member.attendance === "Present"
-).length;
+  const expiringSoonMembers =
+    members.filter((member) => {
+      if (!member.expiryDate) return false;
 
-const absentMembers = members.filter(
-  (member) =>
-    (member.attendance || "Absent") === "Absent"
-).length;
+      const today = new Date();
+      const expiry = new Date(member.expiryDate);
 
-const expiringSoonMembers = members.filter(
-  (member) => {
-    if (!member.expiryDate) return false;
+      today.setHours(0, 0, 0, 0);
+      expiry.setHours(0, 0, 0, 0);
 
-    const today = new Date();
-    const expiry = new Date(member.expiryDate);
+      const diff = Math.ceil(
+        (expiry - today) /
+          (1000 * 60 * 60 * 24)
+      );
 
-    today.setHours(0, 0, 0, 0);
-    expiry.setHours(0, 0, 0, 0);
+      return diff >= 0 && diff <= 7;
+    }).length;
 
-    const diffInDays = Math.ceil(
-      (expiry - today) /
-        (1000 * 60 * 60 * 24)
-    );
+  const todaysCollection =
+    paymentHistory
+      .filter(
+        (payment) =>
+          payment.paymentDate ===
+          new Date().toLocaleDateString(
+            "en-GB"
+          )
+      )
+      .reduce(
+        (sum, payment) =>
+          sum + Number(payment.amount),
+        0
+      );
 
-    return diffInDays >= 0 && diffInDays <= 7;
-  }
-).length;
-if (page === "home") {
+  /* ==========================================================
+                    HOME DASHBOARD
+  ========================================================== */
+
   return (
     <HomeDashboard
-  setPage={setPage}
-  members={members}
-  paidMembers={paidMembers}
-  unpaidMembers={unpaidMembers}
-  todaysCollection={todaysCollection}
-  presentMembers={presentMembers}
-  absentMembers={absentMembers}
-  expiringSoonMembers={expiringSoonMembers}
-  sidebarOpen={sidebarOpen}
-  setSidebarOpen={setSidebarOpen}
-/>
+      page={page}
+      setPage={setPage}
+      members={members}
+      paidMembers={paidMembers}
+      unpaidMembers={unpaidMembers}
+      totalFees={totalFees}
+      todaysCollection={todaysCollection}
+      presentMembers={presentMembers}
+      absentMembers={absentMembers}
+      expiringSoonMembers={
+      expiringSoonMembers}
+      sidebarOpen={sidebarOpen}
+setSidebarOpen={setSidebarOpen}
+setSelectedMember={setSelectedMember}
+    />
   );
-}
 }
 
 export default App;

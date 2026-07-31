@@ -38,15 +38,15 @@ const memberSchema = new mongoose.Schema({
   },
 
   owner: {
-  type: mongoose.Schema.Types.ObjectId,
-  ref: "User",
-  required: true,
-},
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
 
   photo: {
-  type: String,
-  default: "",
-},
+    type: String,
+    default: "",
+  },
 
   attendance: {
     type: String,
@@ -73,6 +73,11 @@ const memberSchema = new mongoose.Schema({
       paymentMethod: {
         type: String,
         default: "Cash",
+      },
+
+      plan: {
+        type: String,
+        default: "",
       },
     },
   ],
