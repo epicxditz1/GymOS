@@ -25,7 +25,7 @@ function Login({ setIsLoggedIn, goToSignup }) {
       setLoading(true);
 
       const response = await api.post(
-        "/api/users/login",
+        "/users/login",
         {
           email,
           password,
