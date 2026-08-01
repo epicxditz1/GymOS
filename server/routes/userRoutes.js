@@ -8,6 +8,7 @@ const User = require("../models/User");
 const authMiddleware = require("../middleware/authMiddleware");
 const upload = require("../middleware/upload");
 
+
 // =======================
 // Signup
 // =======================
@@ -21,6 +22,20 @@ router.post("/signup", async (req, res) => {
       gymAddress,
       password,
     } = req.body;
+
+    if (
+  !gymName ||
+  !ownerName ||
+  !email ||
+  !phone ||
+  !gymAddress ||
+  !password
+) {
+  return res.status(400).json({
+    message: "Please fill all fields",
+  });
+}
+
 
     const existingUser = await User.findOne({ email });
 
@@ -70,6 +85,12 @@ router.post("/signup", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    if (!email || !password) {
+  return res.status(400).json({
+    message: "Email and Password are required",
+  });
+}
 
     const user = await User.findOne({ email });
 
@@ -154,9 +175,6 @@ router.put(
   upload.single("gymLogo"),
   async (req, res) => {
     try {
-      console.log("========== UPDATE OWNER ==========");
-      console.log("Body:", req.body);
-      console.log("File:", req.file);
 
       const user = await User.findById(req.user.userId);
 

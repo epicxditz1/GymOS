@@ -63,10 +63,16 @@ router.get("/", authMiddleware, async (req, res) => {
 // =======================
 router.delete("/:id", authMiddleware, async (req, res) => {
   try {
-    await Member.findOneAndDelete({
+const deletedMember = await Member.findOneAndDelete({
   _id: req.params.id,
   owner: req.user.userId,
 });
+
+if (!deletedMember) {
+  return res.status(404).json({
+    message: "Member not found",
+  });
+}
 
     res.json({
       message: "✅ Member Deleted Successfully",
@@ -115,23 +121,6 @@ router.put("/:id", authMiddleware, upload.any(), async (req, res) => {
         message: "Member not found",
       });
     }
-
-    const paymentHistory =
-  existingMember.paymentHistory || [];
-
-if (
-  req.body.status === "Paid" &&
-  req.body.paymentMethod
-) {
-  paymentHistory.push({
-    amount: req.body.fees,
-    paymentDate: new Date().toLocaleDateString("en-GB"),
-    paymentMethod: req.body.paymentMethod,
-    plan: req.body.membership,
-  });
-}
-
-req.body.paymentHistory = paymentHistory;
 
     const updatedMember = await Member.findOneAndUpdate(
   {
