@@ -159,7 +159,7 @@ const response = await updateOwnerProfile(data);
         <div className="rounded-3xl border border-white/10 bg-[#0F172A]/90 p-8">
 
           <h2 className="text-2xl font-bold mb-8">
-            🏋️ Gym Information
+             Gym Information
           </h2>
 
           <div className="space-y-6">
@@ -192,7 +192,7 @@ const response = await updateOwnerProfile(data);
         <div className="rounded-3xl border border-white/10 bg-[#0F172A]/90 p-8">
 
           <h2 className="text-2xl font-bold mb-8">
-            👤 Owner Information
+             Owner Information
           </h2>
 
           <div className="space-y-6">
@@ -235,7 +235,7 @@ const response = await updateOwnerProfile(data);
         <div className="rounded-3xl border border-white/10 bg-[#0F172A]/90 p-8 md:col-span-2">
 
           <h2 className="text-2xl font-bold mb-8">
-            📊 Account Information
+             Account Information
           </h2>
 
           <div className="grid md:grid-cols-3 gap-6">

@@ -88,13 +88,13 @@ function AttendancePage({
                 />
 
                 <span className="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-300">
-                  Attendance Management
+                  Daily Attendance
                 </span>
 
               </div>
 
               <h1 className="mt-6 text-5xl font-black tracking-tight text-white">
-                Today's Attendance
+                Member Attendance
               </h1>
 
               <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-400">
@@ -340,15 +340,12 @@ function AttendancePage({
 
               <span className="text-sm text-slate-400">
 
-                Showing
-
-                <span className="mx-2 font-bold text-white">
-
-                  {filteredMembers.length}
-
-                </span>
-
-                Members
+                <span className="text-sm text-slate-400">
+  Total Results :
+  <span className="ml-2 font-bold text-white">
+    {filteredMembers.length}
+  </span>
+</span>
 
               </span>
 
@@ -383,7 +380,7 @@ function AttendancePage({
 
             <p className="mt-3 text-slate-400">
 
-              Try changing your search or filter.
+              No members match the current search or filter.
 
             </p>
 
@@ -486,7 +483,7 @@ function AttendancePage({
                         : "border border-emerald-500/20 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500 hover:text-white hover:scale-[1.03]"
                     }`}
                   >
-                    ✅ Mark Present
+                     Mark Present
                   </button>
 
                   <button
@@ -507,7 +504,7 @@ function AttendancePage({
                         : "border border-red-500/20 bg-red-500/10 text-red-300 hover:bg-red-500 hover:text-white hover:scale-[1.03]"
                     }`}
                   >
-                    ❌ Mark Absent
+                     Mark Absent
                   </button>
 
                 </div>

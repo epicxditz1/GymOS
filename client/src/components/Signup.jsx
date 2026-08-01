@@ -123,7 +123,7 @@ function Signup({ goToLogin }) {
 
           <input
             type="text"
-            placeholder="Iron Fitness"
+            placeholder="Gym Name"
             value={gymName}
             onChange={(e) =>
               setGymName(e.target.value)
@@ -144,7 +144,7 @@ function Signup({ goToLogin }) {
 
           <input
             type="text"
-            placeholder="Mayank"
+            placeholder="Your Name"
             value={ownerName}
             onChange={(e) =>
               setOwnerName(e.target.value)
@@ -165,7 +165,7 @@ function Signup({ goToLogin }) {
 
           <input
             type="email"
-            placeholder="you@example.com"
+            placeholder="your@gmail.com"
             value={email}
             onChange={(e) =>
               setEmail(e.target.value)
@@ -184,7 +184,7 @@ function Signup({ goToLogin }) {
 
           <input
             type="text"
-            placeholder="+91 1111111111"
+            placeholder="+91-0000000000"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             onKeyDown={handleKeyDown}

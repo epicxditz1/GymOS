@@ -105,7 +105,7 @@ function FeesPage({
           <div>
 
             <h1 className="text-4xl font-bold">
-              💰 Fees Management
+              Fees Management
             </h1>
 
             <p className="mt-2 text-slate-400">
@@ -353,18 +353,7 @@ function FeesPage({
                     className="flex-1 rounded-xl bg-cyan-500 py-3 font-semibold transition hover:bg-cyan-600"
                   >
 
-                    💵 Receive Payment
-
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      toggleFeeStatus(index)
-                    }
-                    className="flex-1 rounded-xl border border-slate-700 bg-slate-800 py-3 font-semibold transition hover:border-cyan-500"
-                  >
-
-                    Change Status
+                    Receive Payment
 
                   </button>
 
@@ -448,15 +437,15 @@ function FeesPage({
                     className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 outline-none transition focus:border-cyan-500"
                   >
                     <option value="Cash">
-                      💵 Cash
+                       Cash
                     </option>
 
                     <option value="UPI">
-                      📱 UPI
+                        UPI
                     </option>
 
                     <option value="Card">
-                      💳 Card
+                        Card
                     </option>
 
                   </select>
@@ -471,7 +460,7 @@ function FeesPage({
                   onClick={receivePayment}
                   className="flex-1 rounded-xl bg-cyan-500 py-3 font-semibold transition hover:bg-cyan-600"
                 >
-                  ✅ Receive Payment
+                  Confirm Payment
                 </button>
 
                 <button

@@ -539,15 +539,17 @@ function App() {
           setPage={setPage}
         />
       );
-
+    
+      
     case "member-profile":
+      console.log("editMember in App:", editMember);
       return (
         <MemberProfile
           member={selectedMember}
           setPage={setPage}
           startEdit={startEdit}
           setMembers={setMembers}
-          onRenew={handleRenewMembership}
+          editMember={editMember}
         />
       );
 

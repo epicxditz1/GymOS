@@ -408,13 +408,6 @@ function MembersPage({
       View
     </button>
 
-    <button
-      onClick={() => startEdit(member)}
-      className="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-amber-500/30 bg-amber-500/10 py-3 font-semibold text-amber-400 transition-all duration-300 hover:scale-105 hover:bg-amber-500 hover:text-white"
-    >
-      <Pencil size={18} />
-      Edit
-    </button>
 
     <button
       onClick={() => {

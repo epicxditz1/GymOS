@@ -77,7 +77,8 @@ function MemberProfile({
     expiryBadge =
       "bg-emerald-500/10 border-emerald-500/20";
   }
-
+  console.log("editMember:", editMember);
+  
   async function handleRenewMembership() {
     try {
       const expiry = new Date();
@@ -163,7 +164,7 @@ function MemberProfile({
       setShowRenewModal(false);
 
       toast.success(
-        "Membership Renewed Successfully 🎉"
+        "Membership Renewed Successfully"
       );
     } catch (err) {
       console.error(err);
@@ -235,7 +236,7 @@ function MemberProfile({
                 </h1>
 
                 <p className="mt-2 text-slate-400">
-                  Active Gym Member
+                   Member Profile
                 </p>
 
                 <div className="flex flex-wrap gap-3 mt-4">
@@ -440,19 +441,21 @@ function MemberProfile({
 
             </div>
 
-            <div className="mt-8 rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-5">
+            <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
 
-              <h3 className="font-semibold text-cyan-400">
-                Performance
-              </h3>
+  <div className="flex items-center justify-between">
 
-              <p className="mt-2 text-sm leading-6 text-slate-400">
-                This member has maintained a good attendance
-                record. Continue encouraging regular workouts to
-                improve consistency.
-              </p>
+    <span className="text-slate-400">
+      Current Attendance
+    </span>
 
-            </div>
+    <span className="text-lg font-bold text-cyan-400">
+      82%
+    </span>
+
+  </div>
+
+</div>
 
           </div>
 

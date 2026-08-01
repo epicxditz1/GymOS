@@ -48,7 +48,7 @@ function PaymentHistoryPage({ members, setPage }) {
   }, [allPayments, search, paymentFilter]);
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white p-6">
+    <div className="min-h-screen bg-[#020617] text-white p-6">
 
       <PaymentHeader setPage={setPage} />
 
@@ -64,7 +64,7 @@ function PaymentHistoryPage({ members, setPage }) {
       {filteredPayments.length === 0 ? (
         <PaymentEmpty />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {filteredPayments.map((payment) => (
             <PaymentCard
               key={payment.id}
