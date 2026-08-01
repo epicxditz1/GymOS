@@ -38,7 +38,7 @@ function Signup({ goToLogin }) {
       setLoading(true);
 
       const response = await api.post(
-        "/api/users/signup",
+        "/users/signup",
         {
           gymName,
           ownerName,
