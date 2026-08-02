@@ -10,12 +10,19 @@ import {
   Sparkles,
 } from "lucide-react";
 
+import { useNavigate, useLocation } from "react-router-dom";
+
 function Sidebar({
   setPage,
   page,
   sidebarOpen,
   setSidebarOpen,
-}) {
+})
+{
+
+  const navigate = useNavigate();
+const location = useLocation();
+
   const menuItems = [
     {
       id: "home",
@@ -127,15 +134,18 @@ function Sidebar({
             const Icon = item.icon;
 
             const active =
-              page === item.id;
+  item.id === "home"
+    ? location.pathname === "/" || location.pathname === "/home"
+    : location.pathname === "/" + item.id;
 
             return (
               <button
                 key={item.id}
                 onClick={() => {
-                  setPage(item.id);
-                  setSidebarOpen(false);
-                }}
+  navigate(item.id === "home" ? "/" : "/" + item.id);
+  setSidebarOpen(false);
+}}
+
                 className={`group relative flex w-full items-center gap-4 overflow-hidden rounded-2xl px-5 py-4 transition-all duration-300 ${
                   active
                     ? "border border-cyan-500/30 bg-gradient-to-r from-cyan-500/15 to-blue-500/10 text-cyan-300 shadow-[0_10px_30px_rgba(34,211,238,0.12)]"
@@ -204,8 +214,7 @@ function Sidebar({
               localStorage.removeItem("token");
               window.location.reload();
             }}
-            className="group mt-5 flex w-full items-center justify-center gap-3 rounded-2xl border border-red-500/20 bg-red-500/10 py-4 font-semibold text-red-400 transition-all duration-300 hover:border-red-500/40 hover:bg-red-500 hover:text-white"
-          >
+            className="group mt-5 flex w-full items-center justify-center gap-3 rounded-2xl border border-red-500/20 bg-red-500/10 py-4 font-semibold text-red-400 transition-all duration-300 hover:border-red-500/40 hover:bg-red-500 hover:text-white">
             <LogOut
               size={20}
               className="transition-transform duration-300 group-hover:-translate-x-1"
@@ -224,7 +233,7 @@ function Sidebar({
             </p>
 
             <p className="mt-2 text-[11px] text-slate-600">
-              Crafted with ❤️ by Mayank
+              Created with ❤️ by Mayank (@epicxditz1)
             </p>
 
           </div>

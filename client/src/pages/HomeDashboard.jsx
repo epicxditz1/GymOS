@@ -60,22 +60,25 @@ function HomeDashboard({
       >
 
         <Topbar
-          setSidebarOpen={setSidebarOpen}
-        />
+  setSidebarOpen={setSidebarOpen}
+  setPage={setPage}
+  members={members}
+  setSelectedMember={setSelectedMember}
+/>
 
         <main className="mx-auto w-full max-w-[1650px] px-5 pb-12 lg:px-8 xl:px-10">
 
           {/* Hero */}
 
           <HeroCard
-            amount={todaysCollection}
-            title="Today's Collection"
-            subtitle="Track today's revenue, attendance and daily gym activity from one powerful dashboard."
-          />
+  amount={todaysCollection}
+  title="Welcome back to GymOS"
+  subtitle="Manage members, payments, attendance and renewals from one powerful dashboard."
+/>
 
           {/* Stats */}
 
-          <section className="mt-10">
+          <section className="mt-8">
 
             <div className="mb-7 flex items-center gap-3">
 
@@ -132,7 +135,7 @@ function HomeDashboard({
 
           {/* Quick Actions */}
 
-          <section className="mt-14">
+          <section className="mt-10">
 
             <div className="mb-8 flex items-center gap-3">
 
@@ -189,7 +192,7 @@ function HomeDashboard({
 
           {/* Bottom Cards */}
 
-          <section className="mt-14 grid grid-cols-1 gap-7 2xl:grid-cols-2">
+          <section className="mt-10 grid grid-cols-1 gap-6 2xl:grid-cols-2">
 
             <RecentMembers
               members={members}
@@ -205,7 +208,7 @@ function HomeDashboard({
 
           {/* Footer */}
 
-          <footer className="mt-20 border-t border-white/10 pt-10 pb-8">
+          <footer className="mt-14 border-t border-white/10 pt-10 pb-8">
 
             <div className="flex flex-col items-center justify-between gap-5 text-center lg:flex-row">
 

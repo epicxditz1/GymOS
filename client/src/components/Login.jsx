@@ -33,11 +33,19 @@ function Login({ setIsLoggedIn, goToSignup }) {
       );
 
       localStorage.setItem(
-        "token",
-        response.data.token
-      );
+  "token",
+  response.data.token
+);
 
-      setIsLoggedIn(true);
+if (response.data.user) {
+  localStorage.setItem(
+    "owner",
+    JSON.stringify(response.data.user)
+  );
+}
+
+setIsLoggedIn(true);
+
     } catch (err) {
       console.error(err);
       alert("Login Failed");

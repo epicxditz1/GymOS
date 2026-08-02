@@ -73,6 +73,17 @@ const response = await updateOwnerProfile(data);
 
       setOwner(response.user);
 
+      localStorage.setItem(
+  "owner",
+  JSON.stringify({
+    name: response.user.ownerName,
+    gymName: response.user.gymName,
+    photo: response.user.gymLogo,
+    email: response.user.email,
+    phone: response.user.phone,
+  })
+);
+
       setFormData({
         gymName: response.user.gymName,
         ownerName: response.user.ownerName,

@@ -26,6 +26,12 @@ import {
 import useMembers from "./hooks/useMembers";
 import useDashboardStats from "./hooks/useDashboardStats";
 
+import {
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+
 function App() {
   /* ==========================================================
                         NAVIGATION
