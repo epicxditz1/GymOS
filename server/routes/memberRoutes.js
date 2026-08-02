@@ -146,5 +146,56 @@ router.put("/:id", authMiddleware, upload.any(), async (req, res) => {
     });
   }
 });
+// =======================
+// Dashboard Stats
+// =======================
+router.get("/stats", authMiddleware, async (req, res) => {
+  try {
+    const members = await Member.find({
+      owner: req.user.userId,
+    });
 
+    const totalMembers = members.length;
+
+    const paidMembers = members.filter(
+      (m) => m.status === "Paid"
+    ).length;
+
+    const unpaidMembers = members.filter(
+      (m) => m.status === "Unpaid"
+    ).length;
+
+    const totalRevenue = members
+      .filter((m) => m.status === "Paid")
+      .reduce((sum, m) => sum + Number(m.fees || 0), 0);
+
+    const today = new Date().toLocaleDateString("en-GB");
+
+    let todaysCollection = 0;
+
+    members.forEach((member) => {
+      if (!member.paymentHistory) return;
+
+      member.paymentHistory.forEach((payment) => {
+        if (payment.paymentDate === today) {
+          todaysCollection += Number(payment.amount || 0);
+        }
+      });
+    });
+
+    res.json({
+      totalMembers,
+      paidMembers,
+      unpaidMembers,
+      totalRevenue,
+      todaysCollection,
+    });
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+});
 module.exports = router;

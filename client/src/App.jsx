@@ -139,16 +139,6 @@ function App() {
                     API TEST
   ========================================================== */
 
-  useEffect(() => {
-    fetch("/api")
-      .then((res) => res.json())
-      .then((data) =>
-        console.log(data.message)
-      )
-      .catch((err) =>
-        console.error(err)
-      );
-  }, []);
     /* ==========================================================
                       SAVE MEMBER
   ========================================================== */
@@ -459,10 +449,21 @@ function App() {
     toast.info("Processing payment...");
 
     const updatedMember = {
-      ...paymentMember,
-      status: "Paid",
+  ...paymentMember,
+  status: "Paid",
+  paymentMethod,
+
+  paymentHistory: [
+    ...(paymentMember.paymentHistory || []),
+
+    {
+      amount: paymentMember.fees,
+      paymentDate: new Date().toLocaleDateString("en-GB"),
       paymentMethod,
-    };
+      plan: paymentMember.membership,
+    },
+  ],
+};
 
     try {
       const data =
