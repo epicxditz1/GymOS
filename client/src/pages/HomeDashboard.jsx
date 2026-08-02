@@ -1,9 +1,5 @@
-
-            
-
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
-import DashboardHeader from "../components/DashboardHeader";
 import QuickActionCard from "../components/QuickActionCard";
 import RecentMembers from "../components/RecentMembers";
 import PremiumStatCard from "../components/PremiumStatCard";
@@ -17,6 +13,7 @@ import {
   UsersRound,
   IndianRupee,
   CalendarDays,
+  Sparkles,
 } from "lucide-react";
 
 function HomeDashboard({
@@ -33,56 +30,76 @@ function HomeDashboard({
   setSidebarOpen,
   setSelectedMember,
 }) {
-  console.log("sidebarOpen:", sidebarOpen);
-console.log("setSidebarOpen:", setSidebarOpen);
   return (
-    <div className="relative min-h-screen bg-[#020617] text-white flex overflow-hidden">
+    <div className="relative flex min-h-screen overflow-hidden bg-[#020617] text-white">
 
-      {/* Background Glow */}
-      <div className="absolute top-[-180px] right-[-180px] h-[420px] w-[420px] rounded-full bg-cyan-500/10 blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-[-220px] left-[-180px] h-[420px] w-[420px] rounded-full bg-violet-500/10 blur-[160px] pointer-events-none" />
+      {/* Background */}
+
+      <div className="pointer-events-none absolute -right-40 -top-40 h-[480px] w-[480px] rounded-full bg-cyan-500/10 blur-[170px]" />
+
+      <div className="pointer-events-none absolute -left-40 bottom-0 h-[500px] w-[500px] rounded-full bg-violet-500/10 blur-[180px]" />
+
       {/* Sidebar */}
-      <Sidebar
-  page={page}
-  setPage={setPage}
-  sidebarOpen={sidebarOpen}
-  setSidebarOpen={setSidebarOpen}
-/>
 
-      {/* Main Content */}
+      <Sidebar
+        page={page}
+        setPage={setPage}
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+      />
+
+      {/* Main */}
+
       <div
         onClick={() => {
           if (sidebarOpen) {
             setSidebarOpen(false);
           }
         }}
-        className="flex-1 transition-all duration-300"
+        className="relative flex-1 transition-all duration-300"
       >
-        <Topbar setSidebarOpen={setSidebarOpen} />
 
-        <div className="max-w-[1500px] mx-auto px-6 lg:px-10 py-8">
+        <Topbar
+          setSidebarOpen={setSidebarOpen}
+        />
 
-          {/* Dashboard Header */}
-          <DashboardHeader />
+        <main className="mx-auto w-full max-w-[1650px] px-5 pb-12 lg:px-8 xl:px-10">
 
-          {/* Hero Section */}
-          <div className="mt-8">
-            <HeroCard
-              amount={todaysCollection}
-              title="Today's Collection"
-              subtitle="Revenue collected today"
-            />
-          </div>
+          {/* Hero */}
 
-          {/* KPI Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mt-8">
+          <HeroCard
+            amount={todaysCollection}
+            title="Today's Collection"
+            subtitle="Track today's revenue, attendance and daily gym activity from one powerful dashboard."
+          />
 
-            <PremiumStatCard
+          {/* Stats */}
+
+          <section className="mt-10">
+
+            <div className="mb-7 flex items-center gap-3">
+
+              <Sparkles
+                size={18}
+                className="text-cyan-400"
+              />
+
+              <h2 className="text-3xl font-black tracking-tight text-white">
+
+                Dashboard Overview
+
+              </h2>
+
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 2xl:grid-cols-4">
+
+                        <PremiumStatCard
               title="Total Members"
               value={members.length}
               icon={Users}
               color="cyan"
-              subtitle="Active gym members"
+              subtitle="Active registered members"
             />
 
             <PremiumStatCard
@@ -90,7 +107,7 @@ console.log("setSidebarOpen:", setSidebarOpen);
               value={presentMembers}
               icon={Users}
               color="emerald"
-              subtitle="Attendance marked"
+              subtitle="Attendance marked today"
             />
 
             <PremiumStatCard
@@ -98,7 +115,7 @@ console.log("setSidebarOpen:", setSidebarOpen);
               value={`₹${todaysCollection}`}
               icon={IndianRupee}
               color="amber"
-              subtitle="Collection received"
+              subtitle="Collection received today"
             />
 
             <PremiumStatCard
@@ -106,28 +123,37 @@ console.log("setSidebarOpen:", setSidebarOpen);
               value={expiringSoonMembers}
               icon={AlertTriangle}
               color="violet"
-              subtitle="Needs renewal"
+              subtitle="Membership renewals pending"
             />
 
-          </div>
-                    {/* Quick Actions */}
-          <section className="mt-12">
-
-            <div className="mb-7">
-              <h2 className="text-2xl font-bold tracking-tight text-white">
-                Quick Actions
-              </h2>
-
-              <p className="text-slate-400 mt-2">
-                Manage your gym quickly using these shortcuts.
-              </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+          </section>
+
+          {/* Quick Actions */}
+
+          <section className="mt-14">
+
+            <div className="mb-8 flex items-center gap-3">
+
+              <Sparkles
+                size={18}
+                className="text-cyan-400"
+              />
+
+              <h2 className="text-3xl font-black tracking-tight text-white">
+
+                Quick Actions
+
+              </h2>
+
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 2xl:grid-cols-4">
 
               <QuickActionCard
                 title="Add Member"
-                subtitle="Register a new member"
+                subtitle="Register a new member into your gym."
                 icon={UserPlus}
                 color="cyan"
                 onClick={() => setPage("add-member")}
@@ -135,7 +161,7 @@ console.log("setSidebarOpen:", setSidebarOpen);
 
               <QuickActionCard
                 title="View Members"
-                subtitle="Browse all members"
+                subtitle="Browse and manage all registered members."
                 icon={UsersRound}
                 color="violet"
                 onClick={() => setPage("view-members")}
@@ -143,7 +169,7 @@ console.log("setSidebarOpen:", setSidebarOpen);
 
               <QuickActionCard
                 title="Fees"
-                subtitle="Manage payments"
+                subtitle="Manage payments and fee collection."
                 icon={IndianRupee}
                 color="emerald"
                 onClick={() => setPage("fees")}
@@ -151,7 +177,7 @@ console.log("setSidebarOpen:", setSidebarOpen);
 
               <QuickActionCard
                 title="Attendance"
-                subtitle="Mark today's attendance"
+                subtitle="Mark today's attendance in one click."
                 icon={CalendarDays}
                 color="amber"
                 onClick={() => setPage("attendance")}
@@ -161,10 +187,13 @@ console.log("setSidebarOpen:", setSidebarOpen);
 
           </section>
 
-          {/* Bottom Section */}
-          <section className="grid grid-cols-1 xl:grid-cols-2 gap-8 mt-12">
+          {/* Bottom Cards */}
 
-            <RecentMembers members={members} />
+          <section className="mt-14 grid grid-cols-1 gap-7 2xl:grid-cols-2">
+
+            <RecentMembers
+              members={members}
+            />
 
             <ExpiringMembersCard
               members={members}
@@ -175,34 +204,73 @@ console.log("setSidebarOpen:", setSidebarOpen);
           </section>
 
           {/* Footer */}
-          <footer className="mt-14 border-t border-slate-800 pt-8 pb-6">
 
-            <div className="text-center">
+          <footer className="mt-20 border-t border-white/10 pt-10 pb-8">
 
-              <p className="text-slate-500 text-sm">
-                Designed & Developed with ❤️ by
-              </p>
+            <div className="flex flex-col items-center justify-between gap-5 text-center lg:flex-row">
 
-              <h3 className="mt-2 text-lg font-semibold text-white">
-                Mayank 
-              </h3>
+              <div>
 
-              <p className="text-slate-500 text-sm">
-                (@epicxditz)
-              </p>
+                <h3 className="text-2xl font-black text-white">
 
+                  GymOS
 
+                </h3>
 
-              <p className="mt-2 text-xs text-slate-600">
-                GymOS © 2026 • India's Premium Gym Management Software
-              </p>
+                <p className="mt-2 text-sm text-slate-400">
+
+                  Premium Gym Management Software
+
+                </p>
+
+              </div>
+
+              <div>
+
+                <p className="text-sm text-slate-500">
+
+                  Designed & Developed by
+
+                </p>
+
+                <h4 className="mt-2 text-lg font-bold text-white">
+
+                  Mayank
+
+                </h4>
+
+                <p className="text-sm text-cyan-400">
+
+                  @epicxditz
+
+                </p>
+
+              </div>
+
+              <div>
+
+                <p className="text-sm text-slate-500">
+
+                  GymOS © 2026
+
+                </p>
+
+                <p className="mt-2 text-sm text-slate-600">
+
+                  Built with React • Tailwind CSS • Node.js
+
+                </p>
+
+              </div>
 
             </div>
 
           </footer>
 
-        </div>
+        </main>
+
       </div>
+
     </div>
   );
 }

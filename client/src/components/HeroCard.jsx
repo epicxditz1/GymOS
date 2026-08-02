@@ -2,6 +2,8 @@ import {
   TrendingUp,
   Wallet,
   CalendarDays,
+  Sparkles,
+  ArrowUpRight,
 } from "lucide-react";
 
 function HeroCard({
@@ -20,47 +22,78 @@ function HeroCard({
   }
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-[#0F172A]/95 backdrop-blur-xl p-6 lg:p-8">
+    <section className="relative overflow-hidden rounded-[34px] border border-white/10 bg-[#0B1220]/95 backdrop-blur-3xl shadow-[0_25px_70px_rgba(0,0,0,0.35)]">
 
-      {/* Background Glow */}
-      <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-cyan-500/10 blur-[110px]" />
+      {/* Background */}
 
-      <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+      <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/[0.04] via-transparent to-indigo-500/[0.05]" />
 
-        {/* Left Side */}
+      <div className="absolute -left-20 top-0 h-72 w-72 rounded-full bg-cyan-500/10 blur-[120px]" />
+
+      <div className="absolute -right-20 -bottom-10 h-72 w-72 rounded-full bg-indigo-500/10 blur-[130px]" />
+
+      <div className="relative flex flex-col gap-10 p-7 lg:flex-row lg:items-center lg:justify-between lg:p-10">
+
+        {/* LEFT */}
+
         <div className="flex-1">
 
-          <p className="text-sm font-medium tracking-wide text-cyan-400">
+          <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-4 py-2">
+
+            <Sparkles
+              size={14}
+              className="text-cyan-400"
+            />
+
+            <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-cyan-300">
+
+              LIVE DASHBOARD
+
+            </span>
+
+          </div>
+
+          <p className="mt-6 text-sm font-semibold tracking-wide text-cyan-400">
+
             {greeting}
+
           </p>
 
-          <h1 className="mt-2 text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-white">
-            {title}
+          <h1 className="mt-3 max-w-2xl text-4xl font-black tracking-tight text-white lg:text-6xl">
+                      {title}
           </h1>
 
-          <p className="mt-3 max-w-xl text-slate-400">
+          <p className="mt-5 max-w-2xl text-base leading-8 text-slate-400 lg:text-lg">
+
             {subtitle}
+
           </p>
 
-          <div className="mt-8 flex items-center gap-4">
+          {/* Revenue */}
 
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500/10">
+          <div className="mt-10 flex items-center gap-5">
+
+            <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/20 shadow-[0_0_35px_rgba(34,211,238,0.18)]">
 
               <Wallet
+                size={30}
                 className="text-cyan-400"
-                size={28}
               />
 
             </div>
 
             <div>
 
-              <p className="text-sm text-slate-400">
-                Today's Revenue
+              <p className="text-sm uppercase tracking-[0.18em] text-slate-500">
+
+                Today's Collection
+
               </p>
 
-              <h2 className="mt-1 text-3xl font-bold text-white">
+              <h2 className="mt-2 text-5xl font-black tracking-tight text-white">
+
                 ₹{amount}
+
               </h2>
 
             </div>
@@ -69,49 +102,78 @@ function HeroCard({
 
         </div>
 
-        {/* Right Side */}
-        <div className="grid grid-cols-2 gap-4 lg:w-[360px]">
+        {/* RIGHT */}
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 transition-all duration-300 hover:border-emerald-500/40">
+        <div className="grid w-full gap-5 md:grid-cols-2 lg:w-[430px]">
 
-            <div className="flex items-center gap-2 text-emerald-400">
+          {/* Card 1 */}
 
-              <TrendingUp size={18} />
+          <div className="group rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-1 hover:border-emerald-500/40">
 
-              <span className="text-sm font-semibold">
-                Revenue
-              </span>
+            <div className="flex items-center justify-between">
+
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10">
+
+                <TrendingUp
+                  size={26}
+                  className="text-emerald-400"
+                />
+
+              </div>
+
+              <ArrowUpRight
+                size={18}
+                className="text-slate-500 transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1"
+              />
 
             </div>
 
-            <p className="mt-4 text-lg font-semibold text-white">
-              Updated Today
-            </p>
+            <h3 className="mt-6 text-xl font-bold text-white">
 
-            <p className="mt-1 text-sm text-slate-500">
-              Live collection data
+              Revenue
+
+            </h3>
+
+            <p className="mt-2 text-sm leading-7 text-slate-400">
+
+              Live collection updates from today's member payments.
+
             </p>
 
           </div>
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 transition-all duration-300 hover:border-cyan-500/40">
+          {/* Card 2 */}
 
-            <div className="flex items-center gap-2 text-cyan-400">
+          <div className="group rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-1 hover:border-cyan-500/40">
 
-              <CalendarDays size={18} />
+            <div className="flex items-center justify-between">
 
-              <span className="text-sm font-semibold">
-                Today
-              </span>
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500/10">
+
+                <CalendarDays
+                  size={26}
+                  className="text-cyan-400"
+                />
+
+              </div>
+
+              <ArrowUpRight
+                size={18}
+                className="text-slate-500 transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1"
+              />
 
             </div>
 
-            <p className="mt-4 text-lg font-semibold text-white">
-              Daily Overview
-            </p>
+            <h3 className="mt-6 text-xl font-bold text-white">
 
-            <p className="mt-1 text-sm text-slate-500">
-              Manage today's activity
+              Daily Overview
+
+            </h3>
+
+            <p className="mt-2 text-sm leading-7 text-slate-400">
+
+              Track attendance, revenue and daily gym activity from one place.
+
             </p>
 
           </div>
@@ -120,7 +182,7 @@ function HeroCard({
 
       </div>
 
-    </div>
+    </section>
   );
 }
 

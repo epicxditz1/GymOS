@@ -2,6 +2,8 @@ import {
   AlertTriangle,
   Calendar,
   ChevronRight,
+  Sparkles,
+  ArrowUpRight,
 } from "lucide-react";
 
 function ExpiringMembersCard({
@@ -30,128 +32,200 @@ function ExpiringMembersCard({
     );
 
   return (
-    <div className="rounded-3xl border border-slate-800 bg-[#0F172A]/95 backdrop-blur-xl p-6">
+    <section className="relative overflow-hidden rounded-[32px] border border-white/10 bg-[#0B1220]/95 backdrop-blur-3xl shadow-[0_20px_60px_rgba(0,0,0,0.30)]">
 
-      {/* Header */}
+      {/* Background Glow */}
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="absolute -left-16 -top-16 h-60 w-60 rounded-full bg-amber-500/10 blur-[120px]" />
 
-        <div>
+      <div className="absolute -right-16 bottom-0 h-60 w-60 rounded-full bg-orange-500/10 blur-[120px]" />
 
-          <div className="flex items-center gap-3">
+      <div className="relative p-7">
 
-            <AlertTriangle
-              size={22}
-              className="text-amber-400"
-            />
+        {/* Header */}
 
-            <h2 className="text-xl font-bold text-white">
-              Expiring Soon
+        <div className="flex items-start justify-between">
+
+          <div>
+
+            <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1.5">
+
+              <Sparkles
+                size={13}
+                className="text-amber-400"
+              />
+
+              <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-amber-300">
+
+                RENEWALS
+
+              </span>
+
+            </div>
+
+            <h2 className="mt-5 text-3xl font-black tracking-tight text-white">
+
+              Expiring Members
+
             </h2>
 
-          </div>
+            <p className="mt-2 max-w-md text-sm leading-7 text-slate-400">
 
-          <p className="mt-1 text-sm text-slate-400">
-            Memberships ending within the next 7 days
-          </p>
+              Members whose memberships are ending within the next 7 days.
 
-        </div>
-
-        <div className="rounded-full bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-400">
-          {expiringMembers.length} Members
-        </div>
-
-      </div>
-
-      {/* Empty */}
-
-      {expiringMembers.length === 0 ? (
-
-        <div className="flex h-56 flex-col items-center justify-center rounded-2xl border border-dashed border-slate-700 bg-slate-900/30">
-
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-800">
-
-            <AlertTriangle
-              size={30}
-              className="text-slate-500"
-            />
+            </p>
 
           </div>
 
-          <h3 className="mt-5 text-lg font-semibold text-white">
-            All Memberships Safe 🎉
-          </h3>
+          <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-5 py-3">
 
-          <p className="mt-2 text-center text-sm text-slate-400">
-            No memberships are expiring this week.
-          </p>
+            <p className="text-xs uppercase tracking-[0.18em] text-amber-300">
+
+              Total
+
+            </p>
+
+            <h3 className="mt-1 text-2xl font-black text-white">
+
+              {expiringMembers.length}
+
+            </h3>
+
+          </div>
 
         </div>
 
-      ) : (
+        {/* Empty State */}
 
-        <div className="space-y-3">
+        {expiringMembers.length === 0 ? (
 
-          {expiringMembers.map((member) => {
+          <div className="mt-8 flex h-72 flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-white/[0.03]">
 
-            const daysLeft = Math.ceil(
-              (new Date(member.expiryDate) -
-                today) /
-                (1000 * 60 * 60 * 24)
-            );
+            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-slate-900 border border-white/10">
 
-            return (
+              <AlertTriangle
+                size={34}
+                className="text-slate-500"
+              />
 
-              <button
-                key={member._id}
-                onClick={() => {
-                  setSelectedMember(member);
-                  setPage("member-profile");
-                }}
-                className="
-                  group
-                  w-full
-                  rounded-2xl
-                  border
-                  border-slate-800
-                  bg-slate-900/40
-                  p-4
-                  transition-all
-                  duration-300
-                  hover:border-amber-500/40
-                  hover:bg-slate-900/70
-                  hover:-translate-y-1
-                  text-left
-                "
-              >
+            </div>
 
-                <div className="flex items-center justify-between">
+            <h3 className="mt-6 text-xl font-bold text-white">
 
-                  {/* Left */}
+              Everything Looks Good 🎉
 
-                  <div className="flex items-center gap-4">
+            </h3>
 
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-lg font-bold text-amber-400">
+            <p className="mt-3 max-w-sm text-center text-sm leading-7 text-slate-400">
 
-                      {member.name?.charAt(0).toUpperCase() || "M"}
+              No memberships are expiring this week.
+
+            </p>
+
+          </div>
+
+        ) : (
+
+          <div className="mt-8 space-y-4">
+
+                      {expiringMembers.map((member) => {
+              const daysLeft = Math.ceil(
+                (new Date(member.expiryDate) - today) /
+                  (1000 * 60 * 60 * 24)
+              );
+
+              return (
+                <button
+                  key={member._id}
+                  onClick={() => {
+                    setSelectedMember(member);
+                    setPage("member-profile");
+                  }}
+                  className="
+                    group
+                    relative
+                    w-full
+                    overflow-hidden
+                    rounded-3xl
+                    border
+                    border-white/10
+                    bg-white/[0.03]
+                    p-5
+                    text-left
+                    transition-all
+                    duration-500
+                    hover:-translate-y-1
+                    hover:border-amber-500/40
+                    hover:bg-white/[0.05]
+                  "
+                >
+                  {/* Hover Glow */}
+
+                  <div className="absolute inset-0 opacity-0 transition-all duration-500 group-hover:opacity-100 bg-gradient-to-r from-amber-500/10 via-transparent to-transparent" />
+
+                  <div className="relative flex items-center justify-between">
+
+                    {/* Left */}
+
+                    <div className="flex items-center gap-4">
+
+                      <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-gradient-to-br from-amber-500 to-orange-500 text-xl font-black text-white shadow-[0_10px_30px_rgba(245,158,11,0.35)]">
+
+                        {member.name?.charAt(0).toUpperCase() || "M"}
+
+                      </div>
+
+                      <div>
+
+                        <h3 className="text-lg font-bold text-white transition-colors duration-300 group-hover:text-amber-300">
+
+                          {member.name}
+
+                        </h3>
+
+                        <p className="mt-2 text-sm text-slate-400">
+
+                          {member.membership}
+
+                        </p>
+
+                        <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
+
+                          <Calendar
+                            size={14}
+                            className="text-amber-400"
+                          />
+
+                          <span>
+
+                            {member.expiryDate}
+
+                          </span>
+
+                        </div>
+
+                      </div>
 
                     </div>
 
-                    <div>
+                    {/* Right */}
 
-                      <h3 className="font-semibold text-white group-hover:text-amber-300 transition-colors">
-                        {member.name}
-                      </h3>
+                    <div className="flex flex-col items-end gap-4">
 
-                      <p className="mt-1 text-sm text-slate-400">
-                        {member.membership}
-                      </p>
+                      <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-300">
 
-                      <div className="mt-2 flex items-center gap-2 text-xs text-slate-500">
+                        {daysLeft === 0
+                          ? "Expires Today"
+                          : `${daysLeft} Days Left`}
 
-                        <Calendar size={13} />
+                      </span>
 
-                        {member.expiryDate}
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/70 transition-all duration-300 group-hover:border-amber-500/30 group-hover:bg-amber-500/10">
+
+                        <ChevronRight
+                          size={20}
+                          className="text-slate-400 transition-all duration-300 group-hover:translate-x-1 group-hover:text-white"
+                        />
 
                       </div>
 
@@ -159,45 +233,17 @@ function ExpiringMembersCard({
 
                   </div>
 
-                  {/* Right */}
+                </button>
+              );
+            })}
 
-                  <div className="flex flex-col items-end">
+          </div>
 
-                    <span className="rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 text-xs font-semibold text-amber-400">
+        )}
 
-                      {daysLeft === 0
-                        ? "Expires Today"
-                        : `${daysLeft} Days Left`}
+      </div>
 
-                    </span>
-
-                    <ChevronRight
-                      size={22}
-                      className="
-                        mt-5
-                        text-slate-600
-                        transition-all
-                        duration-300
-                        group-hover:text-white
-                        group-hover:translate-x-1
-                      "
-                    />
-
-                  </div>
-
-                </div>
-
-              </button>
-
-            );
-
-          })}
-
-        </div>
-
-      )}
-
-    </div>
+    </section>
   );
 }
 

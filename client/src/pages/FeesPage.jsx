@@ -359,6 +359,47 @@ function FeesPage({
 
                 </div>
 
+                {/* Payment History */}
+{member.paymentHistory?.length > 0 && (
+  <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-800/40 p-4">
+    <div className="mb-3 flex items-center justify-between">
+      <h3 className="font-semibold text-white">
+        Payment History
+      </h3>
+
+      <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs text-cyan-400">
+        {member.paymentHistory.length}
+      </span>
+    </div>
+
+    <div className="space-y-3">
+      {[...member.paymentHistory]
+        .reverse()
+        .slice(0, 3)
+        .map((payment, index) => (
+          <div
+            key={index}
+            className="flex items-center justify-between rounded-xl bg-slate-900 p-3"
+          >
+            <div>
+              <p className="font-semibold">
+                ₹{payment.amount}
+              </p>
+
+              <p className="text-xs text-slate-400">
+                {payment.paymentDate}
+              </p>
+            </div>
+
+            <span className="rounded-full bg-green-500/20 px-3 py-1 text-xs text-green-400">
+              {payment.paymentMethod}
+            </span>
+          </div>
+        ))}
+    </div>
+  </div>
+)}
+
               </div>
 
             ))}
@@ -366,7 +407,6 @@ function FeesPage({
           </div>
 
         )}
-
                 {/* ===========================
               Payment Modal
         =========================== */}
