@@ -657,20 +657,18 @@ function App() {
       return diff >= 0 && diff <= 7;
     }).length;
 
-  const todaysCollection =
-    paymentHistory
-      .filter(
-        (payment) =>
-          payment.paymentDate ===
-          new Date().toLocaleDateString(
-            "en-GB"
-          )
-      )
-      .reduce(
-        (sum, payment) =>
-          sum + Number(payment.amount),
-        0
-      );
+  const todaysCollection = members
+  .flatMap((member) => member.paymentHistory || [])
+  .filter(
+    (payment) =>
+      payment.paymentDate ===
+      new Date().toLocaleDateString("en-GB")
+  )
+  .reduce(
+    (sum, payment) =>
+      sum + Number(payment.amount || 0),
+    0
+  );
 
   /* ==========================================================
                     HOME DASHBOARD
