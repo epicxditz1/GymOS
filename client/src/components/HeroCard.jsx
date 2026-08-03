@@ -22,7 +22,7 @@ function HeroCard({
   }
 
   return (
-    <section className="relative overflow-hidden rounded-[30px] border border-white/10 bg-[#0B1220]/95 backdrop-blur-3xl shadow-[0_25px_70px_rgba(0,0,0,0.35)]">
+    <section className="relative z-0 overflow-hidden rounded-[30px] border border-white/10 bg-[#0B1220]/95 backdrop-blur-3xl shadow-[0_25px_70px_rgba(0,0,0,0.35)]">
 
       {/* Background */}
 
