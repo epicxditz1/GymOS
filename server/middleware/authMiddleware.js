@@ -1,27 +1,53 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
-const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader) {
-    return res.status(401).json({
-      message: "Access denied. No token provided.",
-    });
-  }
-
-  const token = authHeader.split(" ")[1];
-
+const authMiddleware = async (req, res, next) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const authHeader = req.headers.authorization;
 
-    console.log("Decoded User:", decoded);
+    if (
+      !authHeader ||
+      !authHeader.startsWith("Bearer ")
+    ) {
+      return res.status(401).json({
+        message: "Access denied.",
+      });
+    }
 
-    req.user = decoded;
+    const token = authHeader.split(" ")[1];
+
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
+
+    const user = await User.findById(
+      decoded.userId
+    );
+
+    if (!user) {
+      return res.status(401).json({
+        message: "User not found.",
+      });
+    }
+
+    if (
+      decoded.tokenVersion !==
+      user.tokenVersion
+    ) {
+      return res.status(401).json({
+        message: "Session expired. Please login again.",
+      });
+    }
+
+    req.user = {
+      userId: user._id,
+    };
 
     next();
   } catch (error) {
-    res.status(401).json({
-      message: "Invalid Token",
+    return res.status(401).json({
+      message: "Invalid or expired token.",
     });
   }
 };
