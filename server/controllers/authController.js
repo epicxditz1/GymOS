@@ -292,20 +292,31 @@ exports.verifyOTP = async (req, res) => {
     const normalizedEmail = email.toLowerCase().trim();
 
     const pendingUser =
-      pendingSignups[normalizedEmail];
+  pendingSignups[normalizedEmail];
 
-    if (!pendingUser) {
-      return res.status(400).json({
-        message:
-          "Signup session expired. Please signup again.",
-      });
-    }
+if (!pendingUser) {
+  return res.status(400).json({
+    message: "Signup session expired. Please signup again.",
+  });
+}
 
-    if (pendingUser.otp !== otp) {
-      return res.status(400).json({
-        message: "Invalid OTP",
-      });
-    }
+console.log("Entered OTP:", otp);
+console.log("Stored OTP:", pendingUser.otp);
+console.log("Types:", typeof otp, typeof pendingUser.otp);
+
+
+    console.log("Entered OTP:", otp);
+console.log("Stored OTP:", pendingUser.otp);
+
+if (pendingUser.otp !== otp) {
+  console.log("❌ OTP MISMATCH");
+
+  return res.status(400).json({
+    message: "Invalid OTP",
+  });
+}
+
+console.log("✅ OTP MATCH");
 
     if (pendingUser.otpExpiry < Date.now()) {
       delete pendingSignups[normalizedEmail];
