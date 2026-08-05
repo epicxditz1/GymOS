@@ -30,6 +30,8 @@ import {
   Routes,
   Route,
   Navigate,
+  useNavigate,
+  useLocation,
 } from "react-router-dom";
 
 import api from "./services/api";
@@ -40,8 +42,91 @@ function App() {
   /* ==========================================================
                         NAVIGATION
   ========================================================== */
-
+  const navigate = useNavigate();
+  const location = useLocation();                                                                   
   const [page, setPage] = useState("home");
+
+  useEffect(() => {
+  switch (location.pathname) {
+    case "/":
+      setPage("home");
+      break;
+
+    case "/add-member":
+      setPage("add-member");
+      break;
+
+    case "/view-members":
+      setPage("view-members");
+      break;
+
+    case "/fees":
+      setPage("fees");
+      break;
+
+    case "/attendance":
+      setPage("attendance");
+      break;
+
+    case "/expiring-members":
+      setPage("expiring-members");
+      break;
+
+    case "/owner-profile":
+      setPage("owner-profile");
+      break;
+
+    case "/member-profile":
+      setPage("member-profile");
+      break;
+
+    default:
+      setPage("home");
+  }
+}, [location.pathname]);
+
+function navigatePage(nextPage) {
+  setPage(nextPage);
+
+  switch (nextPage) {
+    case "home":
+      navigate("/");
+      break;
+
+    case "add-member":
+      navigate("/add-member");
+      break;
+
+    case "view-members":
+      navigate("/view-members");
+      break;
+
+    case "fees":
+      navigate("/fees");
+      break;
+
+    case "attendance":
+      navigate("/attendance");
+      break;
+
+    case "expiring-members":
+      navigate("/expiring-members");
+      break;
+
+    case "owner-profile":
+      navigate("/owner-profile");
+      break;
+
+    case "member-profile":
+      navigate("/member-profile");
+      break;
+
+    default:
+      navigate("/");
+  }
+}
+
+
   const [selectedMember, setSelectedMember] = useState(null);
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -64,10 +149,18 @@ const [loadingAuth, setLoadingAuth] =
   const [showOTP, setShowOTP] =
   useState(false);  
 
+  function goTo(path) {
+  navigate(path);
+}
+
+function goHome() {
+  navigate("/");
+}
+
     useEffect(() => {
   const checkAuth = async () => {
     const token = localStorage.getItem("token");
-
+    
 
     if (!token) {
       setIsLoggedIn(false);
@@ -323,7 +416,7 @@ const [loadingAuth, setLoadingAuth] =
     setIsEditing(false);
     setEditIndex(null);
 
-    setPage("view-members");
+    navigatePage("view-members");
   }
 
   /* ==========================================================
@@ -349,7 +442,7 @@ const [loadingAuth, setLoadingAuth] =
     setEditIndex(index);
     setIsEditing(true);
 
-    setPage("add-member");
+    navigatePage("add-member");
   }
     /* ==========================================================
                     DELETE MEMBER
@@ -610,7 +703,7 @@ const [loadingAuth, setLoadingAuth] =
           setPhoto={setPhoto}
           isEditing={isEditing}
           saveMember={handleSaveMember}
-          setPage={setPage}
+          setPage={navigatePage}
         />
       );
     
@@ -620,7 +713,7 @@ const [loadingAuth, setLoadingAuth] =
       return (
         <MemberProfile
           member={selectedMember}
-          setPage={setPage}
+          setPage={navigatePage}
           startEdit={startEdit}
           setMembers={setMembers}
           editMember={editMember}
@@ -637,7 +730,7 @@ const [loadingAuth, setLoadingAuth] =
           setStatusFilter={setStatusFilter}
           deleteMember={deleteMember}
           startEdit={startEdit}
-          setPage={setPage}
+          setPage={navigatePage}
           selectedMember={selectedMember}
           setSelectedMember={setSelectedMember}
         />
@@ -647,7 +740,7 @@ const [loadingAuth, setLoadingAuth] =
       return (
         <FeesPage
           members={members}
-          setPage={setPage}
+          setPage={navigatePage}
           setPaymentMember={setPaymentMember}
           setShowPaymentPopup={setShowPaymentPopup}
           showPaymentPopup={showPaymentPopup}
@@ -662,7 +755,7 @@ const [loadingAuth, setLoadingAuth] =
       return (
         <AttendancePage
           members={members}
-          setPage={setPage}
+          setPage={navigatePage}
           markAttendance={markAttendance}
         />
       );
@@ -672,7 +765,7 @@ const [loadingAuth, setLoadingAuth] =
         <ExpiringMembersPage
           members={members}
           getExpiryStatus={getExpiryStatus}
-          setPage={setPage}
+          setPage={navigatePage}
           setSelectedMember={setSelectedMember}
         />
       );
@@ -680,7 +773,7 @@ const [loadingAuth, setLoadingAuth] =
     case "owner-profile":
       return (
         <OwnerProfile
-          setPage={setPage}
+          setPage={navigatePage}
         />
       );
 
@@ -750,7 +843,7 @@ const [loadingAuth, setLoadingAuth] =
   return (
     <HomeDashboard
       page={page}
-      setPage={setPage}
+      setPage={navigatePage}
       members={members}
       paidMembers={paidMembers}
       unpaidMembers={unpaidMembers}
