@@ -863,6 +863,24 @@ return (
           />
         }
       />
+
+    <Route
+  path="view-members"
+  element={
+    <MembersPage
+      members={members}
+      search={search}
+      setSearch={setSearch}
+      statusFilter={statusFilter}
+      setStatusFilter={setStatusFilter}
+      deleteMember={deleteMember}
+      startEdit={startEdit}
+      setPage={navigatePage}
+      selectedMember={selectedMember}
+      setSelectedMember={setSelectedMember}
+    />
+  }
+/>
     </Route>
   </Routes>
 );
