@@ -6,16 +6,19 @@ import {
 } from "lucide-react";
 
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 
 function Topbar({
   setSidebarOpen,
-  setPage,
   members,
   setSelectedMember,
 })
 
 {
   const today = new Date();
+
+  const navigate = useNavigate();
 
   const formattedDate = today.toLocaleDateString("en-IN", {
     weekday: "long",
@@ -291,7 +294,11 @@ filteredMembers.length > 0) && (
 <button
 key={item.page}
 onClick={() => {
-  setPage(item.page);
+  navigate(
+  item.page === "dashboard"
+    ? "/"
+    : "/" + item.page
+);
   setSearch("");
 }}
 className="group flex w-full items-center gap-3 border-b border-white/5 px-4 py-3 text-left transition-all duration-200 hover:bg-cyan-500/10 hover:pl-5"
@@ -359,7 +366,7 @@ className="group flex w-full items-center gap-3 border-b border-white/5 px-4 py-
 key={member._id}
 onClick={()=>{
 setSelectedMember(member);
-setPage("member-profile");
+navigate("/member-profile");
 setSearch("");
 }}
 className="group flex w-full items-center gap-3 border-b border-white/5 px-4 py-3 text-left transition-all duration-200 hover:bg-cyan-500/10 hover:pl-5">
@@ -436,7 +443,7 @@ filteredMembers.length === 0 && (
             {/* Owner */}
 
             <button
-  onClick={() => setPage?.("owner-profile")}
+  onClick={() => navigate("/owner-profile")}
   className="group flex h-10 items-center gap-2.5 rounded-xl border border-white/10 bg-slate-900/60 px-2 pr-3 transition-all duration-300 hover:border-cyan-500/40 hover:bg-slate-800/70"
 >
 

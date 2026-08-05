@@ -13,11 +13,10 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 
 function Sidebar({
-  setPage,
-  page,
   sidebarOpen,
   setSidebarOpen,
 })
+
 {
 
   const navigate = useNavigate();
@@ -211,9 +210,20 @@ const location = useLocation();
 
           <button
             onClick={() => {
-              localStorage.removeItem("token");
-              window.location.reload();
-            }}
+  const confirmed = window.confirm(
+    "Are you sure you want to logout?"
+  );
+
+  if (!confirmed) return;
+
+  localStorage.removeItem("token");
+  localStorage.removeItem("owner");
+
+  navigate("/");
+
+  window.location.reload();
+}}
+
             className="group mt-5 flex w-full items-center justify-center gap-3 rounded-2xl border border-red-500/20 bg-red-500/10 py-4 font-semibold text-red-400 transition-all duration-300 hover:border-red-500/40 hover:bg-red-500 hover:text-white">
             <LogOut
               size={20}

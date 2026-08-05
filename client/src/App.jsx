@@ -30,6 +30,7 @@ import {
   Routes,
   Route,
   Navigate,
+  Outlet,
   useNavigate,
   useLocation,
 } from "react-router-dom";
@@ -38,6 +39,11 @@ import api from "./services/api";
 
 import OtpVerification from "./components/OtpVerification";
 
+import Dashboard from "./pages/Dashboard";
+import DashboardLayout from "./layouts/DashboardLayout";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import AuthRoutes from "./routes/AuthRoutes";
+
 function App() {
   /* ==========================================================
                         NAVIGATION
@@ -45,6 +51,25 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();                                                                   
   const [page, setPage] = useState("home");
+
+  useEffect(() => {
+  const handleBeforeUnload = (event) => {
+    event.preventDefault();
+    event.returnValue = "";
+  };
+
+  window.addEventListener(
+    "beforeunload",
+    handleBeforeUnload
+  );
+
+  return () => {
+    window.removeEventListener(
+      "beforeunload",
+      handleBeforeUnload
+    );
+  };
+}, []);
 
   useEffect(() => {
   switch (location.pathname) {
@@ -254,6 +279,113 @@ function goHome() {
     saveMember,
     editMember,
   } = useMembers();
+
+  /*
+  ==========================================================
+
+                  DASHBOARD STATISTICS
+
+  ========================================================== */
+
+
+
+  const {
+
+    paidMembers,
+
+    unpaidMembers,
+
+  } = useDashboardStats(members);
+
+
+
+  const totalFees = members.reduce(
+
+    (sum, member) =>
+
+      sum + Number(member.fees || 0),
+
+    0
+
+  );
+
+
+
+  const presentMembers = members.filter(
+
+    (member) =>
+
+      member.attendance === "Present"
+
+  ).length;
+
+
+
+  const absentMembers =
+
+    members.length - presentMembers;
+
+
+
+  const expiringSoonMembers =
+
+    members.filter((member) => {
+
+      if (!member.expiryDate) return false;
+
+
+
+      const today = new Date();
+
+      const expiry = new Date(member.expiryDate);
+
+
+
+      today.setHours(0, 0, 0, 0);
+
+      expiry.setHours(0, 0, 0, 0);
+
+
+
+      const diff = Math.ceil(
+
+        (expiry - today) /
+
+          (1000 * 60 * 60 * 24)
+
+      );
+
+
+
+      return diff >= 0 && diff <= 7;
+
+    }).length;
+
+
+
+  const todaysCollection = members
+
+  .flatMap((member) => member.paymentHistory || [])
+
+  .filter(
+
+    (payment) =>
+
+      payment.paymentDate ===
+
+      new Date().toLocaleDateString("en-GB")
+
+  )
+
+  .reduce(
+
+    (sum, payment) =>
+
+      sum + Number(payment.amount || 0),
+
+    0
+
+  );
 
   /* ==========================================================
                   PAYMENT HISTORY
@@ -675,11 +807,65 @@ function goHome() {
   );
 }
 
-
+function renderDashboard() {
+  return (
+    <Dashboard
+      page={page}
+      setPage={navigatePage}
+      members={members}
+      paidMembers={paidMembers}
+      unpaidMembers={unpaidMembers}
+      totalFees={totalFees}
+      todaysCollection={todaysCollection}
+      presentMembers={presentMembers}
+      absentMembers={absentMembers}
+      expiringSoonMembers={expiringSoonMembers}
+      sidebarOpen={sidebarOpen}
+      setSidebarOpen={setSidebarOpen}
+      setSelectedMember={setSelectedMember}
+    />
+  );
+}
 
   /* ==========================================================
                     PAGE ROUTING
   ========================================================== */
+return (
+  <Routes>
+    <Route
+      path="/"
+      element={
+        <ProtectedRoute>
+          <DashboardLayout
+            members={members}
+            sidebarOpen={sidebarOpen}
+            setSidebarOpen={setSidebarOpen}
+            setSelectedMember={setSelectedMember}
+          />
+        </ProtectedRoute>
+      }
+    >
+      <Route
+        index
+        element={
+          <Dashboard
+            page={page}
+            setPage={navigatePage}
+            members={members}
+            paidMembers={paidMembers}
+            unpaidMembers={unpaidMembers}
+            totalFees={totalFees}
+            todaysCollection={todaysCollection}
+            presentMembers={presentMembers}
+            absentMembers={absentMembers}
+            expiringSoonMembers={expiringSoonMembers}
+            setSelectedMember={setSelectedMember}
+          />
+        }
+      />
+    </Route>
+  </Routes>
+);
 
   switch (page) {
     case "add-member":
@@ -782,82 +968,12 @@ function goHome() {
       break;
   }
 
-  /* ==========================================================
-                  DASHBOARD STATISTICS
-  ========================================================== */
-
-  const {
-    paidMembers,
-    unpaidMembers,
-  } = useDashboardStats(members);
-
-  const totalFees = members.reduce(
-    (sum, member) =>
-      sum + Number(member.fees || 0),
-    0
-  );
-
-  const presentMembers = members.filter(
-    (member) =>
-      member.attendance === "Present"
-  ).length;
-
-  const absentMembers =
-    members.length - presentMembers;
-
-  const expiringSoonMembers =
-    members.filter((member) => {
-      if (!member.expiryDate) return false;
-
-      const today = new Date();
-      const expiry = new Date(member.expiryDate);
-
-      today.setHours(0, 0, 0, 0);
-      expiry.setHours(0, 0, 0, 0);
-
-      const diff = Math.ceil(
-        (expiry - today) /
-          (1000 * 60 * 60 * 24)
-      );
-
-      return diff >= 0 && diff <= 7;
-    }).length;
-
-  const todaysCollection = members
-  .flatMap((member) => member.paymentHistory || [])
-  .filter(
-    (payment) =>
-      payment.paymentDate ===
-      new Date().toLocaleDateString("en-GB")
-  )
-  .reduce(
-    (sum, payment) =>
-      sum + Number(payment.amount || 0),
-    0
-  );
 
   /* ==========================================================
                     HOME DASHBOARD
   ========================================================== */
 
-  return (
-    <HomeDashboard
-      page={page}
-      setPage={navigatePage}
-      members={members}
-      paidMembers={paidMembers}
-      unpaidMembers={unpaidMembers}
-      totalFees={totalFees}
-      todaysCollection={todaysCollection}
-      presentMembers={presentMembers}
-      absentMembers={absentMembers}
-      expiringSoonMembers={
-      expiringSoonMembers}
-      sidebarOpen={sidebarOpen}
-setSidebarOpen={setSidebarOpen}
-setSelectedMember={setSelectedMember}
-    />
-  );
+  return renderDashboard();
 }
 
 export default App;
