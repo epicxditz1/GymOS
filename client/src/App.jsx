@@ -32,6 +32,10 @@ import {
   Navigate,
 } from "react-router-dom";
 
+import api from "./services/api";
+
+import OtpVerification from "./components/OtpVerification";
+
 function App() {
   /* ==========================================================
                         NAVIGATION
@@ -46,12 +50,54 @@ function App() {
                       AUTHENTICATION
   ========================================================== */
 
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    !!localStorage.getItem("token")
-  );
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+const [loadingAuth, setLoadingAuth] =
+  useState(true);
 
   const [authPage, setAuthPage] =
     useState("login");
+
+  const [pendingEmail, setPendingEmail] =
+  useState("");
+
+  const [showOTP, setShowOTP] =
+  useState(false);  
+
+    useEffect(() => {
+  const checkAuth = async () => {
+    const token = localStorage.getItem("token");
+
+
+    if (!token) {
+      setIsLoggedIn(false);
+      setLoadingAuth(false);
+      return;
+    }
+
+    try {
+      const { data } = await api.get("/users/me");
+
+      localStorage.setItem(
+        "owner",
+        JSON.stringify(data)
+      );
+
+      setIsLoggedIn(true);
+    } catch (err) {
+      console.error(err);
+
+      localStorage.removeItem("token");
+      localStorage.removeItem("owner");
+
+      setIsLoggedIn(false);
+    } finally {
+      setLoadingAuth(false);
+    }
+  };
+
+  checkAuth();
+}, []);
 
   /* ==========================================================
                     MEMBER FORM
@@ -503,19 +549,40 @@ function App() {
     /* ==========================================================
                     AUTH PAGES
   ========================================================== */
+  
+  if (loadingAuth) {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-[#09090B] text-white">
+      Loading...
+    </div>
+  );
+}
 
-  if (!isLoggedIn) {
-    return authPage === "login" ? (
-      <Login
+ if (!isLoggedIn) {
+  if (showOTP) {
+    return (
+      <OtpVerification
+        email={pendingEmail}
         setIsLoggedIn={setIsLoggedIn}
-        goToSignup={() => setAuthPage("signup")}
-      />
-    ) : (
-      <Signup
-        goToLogin={() => setAuthPage("login")}
       />
     );
   }
+
+  return authPage === "login" ? (
+    <Login
+      setIsLoggedIn={setIsLoggedIn}
+      goToSignup={() => setAuthPage("signup")}
+    />
+  ) : (
+    <Signup
+      goToLogin={() => setAuthPage("login")}
+      setPendingEmail={setPendingEmail}
+      setShowOTP={setShowOTP}
+    />
+  );
+}
+
+
 
   /* ==========================================================
                     PAGE ROUTING

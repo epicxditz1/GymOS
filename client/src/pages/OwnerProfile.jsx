@@ -10,6 +10,7 @@ import {
   Calendar,
   Pencil,
   ShieldCheck,
+  LogOut,
 } from "lucide-react";
 
 import {
@@ -162,6 +163,18 @@ const response = await updateOwnerProfile(data);
 
         </div>
       </div>
+
+      <button
+  onClick={() => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("owner");
+    window.location.reload();
+  }}
+  className="mt-3 flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-5 py-3 font-semibold text-red-400 transition hover:bg-red-500/20"
+>
+  <LogOut size={18} />
+  Logout
+</button>
 
       {/* Cards */}
       <div className="grid md:grid-cols-2 gap-6 mt-8">

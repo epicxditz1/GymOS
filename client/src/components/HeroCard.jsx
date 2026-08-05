@@ -89,61 +89,13 @@ function HeroCard({
 
         </div>
 
-        {/* RIGHT */}
-
                 {/* RIGHT */}
 
-        <div className="mt-8 flex flex-wrap gap-4 lg:mt-10">
+        {/* RIGHT */}
 
-          <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-5 py-4 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/40">
+<div className="grid w-full max-w-xl grid-cols-2 gap-4">
 
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-300">
-              Revenue
-            </p>
-
-            <p className="mt-2 text-lg font-bold text-white">
-              Live Tracking
-            </p>
-
-          </div>
-
-          <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/10 px-5 py-4 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/40">
-
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">
-              Attendance
-            </p>
-
-            <p className="mt-2 text-lg font-bold text-white">
-              Daily Status
-            </p>
-
-          </div>
-
-          <div className="rounded-2xl border border-violet-500/20 bg-violet-500/10 px-5 py-4 transition-all duration-300 hover:-translate-y-1 hover:border-violet-400/40">
-
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-300">
-              Members
-            </p>
-
-            <p className="mt-2 text-lg font-bold text-white">
-              Active Database
-            </p>
-
-          </div>
-
-          <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-5 py-4 transition-all duration-300 hover:-translate-y-1 hover:border-amber-400/40">
-
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">
-              Renewals
-            </p>
-
-            <p className="mt-2 text-lg font-bold text-white">
-              Expiring Plans
-            </p>
-
-          </div>
-
-        </div>
+</div>
 
       </div>
 

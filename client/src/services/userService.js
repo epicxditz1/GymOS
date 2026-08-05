@@ -1,38 +1,50 @@
-const API_URL = import.meta.env.VITE_API_URL;
+import api from "./api";
+
+// =======================
+// Owner Profile
+// =======================
 
 export async function getOwnerProfile() {
-  const token = localStorage.getItem("token");
-
-  const response = await fetch(`${API_URL}/api/users/me`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.message);
-  }
-
-  return data;
+  const response = await api.get("/users/me");
+  return response.data;
 }
+
 export async function updateOwnerProfile(formData) {
-  const token = localStorage.getItem("token");
+  const response = await api.put(
+    "/users/me",
+    formData
+  );
 
-  const response = await fetch(`${API_URL}/api/users/me`, {
-    method: "PUT",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
+  return response.data;
+}
 
-  const data = await response.json();
+// =======================
+// Verify OTP
+// =======================
 
-  if (!response.ok) {
-    throw new Error(data.message);
-  }
+export async function verifyOTP(email, otp) {
+  const response = await api.post(
+    "/users/verify-otp",
+    {
+      email,
+      otp,
+    }
+  );
 
-  return data;
+  return response.data;
+}
+
+// =======================
+// Resend OTP
+// =======================
+
+export async function resendOTP(email) {
+  const response = await api.post(
+    "/users/resend-otp",
+    {
+      email,
+    }
+  );
+
+  return response.data;
 }

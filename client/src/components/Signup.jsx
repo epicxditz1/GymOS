@@ -7,7 +7,11 @@ import {
 } from "lucide-react";
 import api from "../services/api";
 
-function Signup({ goToLogin }) {
+function Signup({
+  goToLogin,
+  setPendingEmail,
+  setShowOTP,
+}) {
   const [gymName, setGymName] = useState("");
   const [ownerName, setOwnerName] = useState("");
   const [email, setEmail] = useState("");
@@ -51,7 +55,10 @@ function Signup({ goToLogin }) {
 
       alert(response.data.message);
 
-      goToLogin();
+setPendingEmail(email);
+
+setShowOTP(true);
+
     } catch (error) {
       console.error(error.response?.data);
 
