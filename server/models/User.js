@@ -62,6 +62,54 @@ const userSchema = new mongoose.Schema(
     otpExpiry: {
       type: Date,
     },
+
+    subscription: {
+  plan: {
+    type: String,
+    enum: ["trial", "monthly", "quarterly"],
+    default: "trial",
+  },
+
+  status: {
+    type: String,
+    enum: ["active", "expired"],
+    default: "active",
+  },
+
+  trialStartedAt: {
+    type: Date,
+    default: Date.now,
+  },
+
+  trialEndsAt: {
+    type: Date,
+    default: () =>
+      new Date(
+        Date.now() + 7 * 24 * 60 * 60 * 1000
+      ),
+  },
+
+  subscriptionStartedAt: {
+    type: Date,
+    default: null,
+  },
+
+  subscriptionEndsAt: {
+    type: Date,
+    default: null,
+  },
+
+  razorpayOrderId: {
+    type: String,
+    default: "",
+  },
+
+  razorpayPaymentId: {
+    type: String,
+    default: "",
+  },
+},
+
   },
   {
     timestamps: true,

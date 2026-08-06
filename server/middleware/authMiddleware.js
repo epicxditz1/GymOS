@@ -22,8 +22,8 @@ const authMiddleware = async (req, res, next) => {
     );
 
     const user = await User.findById(
-      decoded.userId
-    );
+  decoded.userId
+).select("-password -otp");
 
     if (!user) {
       return res.status(401).json({
@@ -40,9 +40,7 @@ const authMiddleware = async (req, res, next) => {
       });
     }
 
-    req.user = {
-      userId: user._id,
-    };
+    req.user = user;
 
     next();
   } catch (error) {

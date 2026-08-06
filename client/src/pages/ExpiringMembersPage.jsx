@@ -1,5 +1,6 @@
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
+import { useNavigate } from "react-router-dom";
 
 import {
   AlertTriangle,
@@ -12,9 +13,12 @@ import {
 function ExpiringMembersPage({
   members,
   getExpiryStatus,
-  setPage,
+
   setSelectedMember,
 }) {
+
+  const navigate = useNavigate();
+  
   const today = new Date();
 
   const expiringMembers = members
@@ -31,6 +35,8 @@ function ExpiringMembersPage({
           (1000 * 60 * 60 * 24)
       );
 
+      
+
       return diff >= 0 && diff <= 7;
     })
     .sort(
@@ -38,7 +44,6 @@ function ExpiringMembersPage({
         new Date(a.expiryDate) -
         new Date(b.expiryDate)
     );
-
   return (
     <div className="relative flex min-h-screen overflow-hidden bg-[#020617] text-white">
 
@@ -95,7 +100,7 @@ function ExpiringMembersPage({
               </div>
 
               <button
-                onClick={() => setPage("home")}
+                onClick={() => navigate("/")}
                 className="group flex items-center gap-3 self-start rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-4 transition-all duration-300 hover:border-amber-500/40 hover:bg-amber-500/10"
               >
 
@@ -104,7 +109,7 @@ function ExpiringMembersPage({
                   className="transition-transform duration-300 group-hover:-translate-x-1"
                 />
 
-                Dashboard
+            
 
               </button>
 
@@ -236,7 +241,7 @@ function ExpiringMembersPage({
                       key={member._id}
                       onClick={() => {
                         setSelectedMember(member);
-                        setPage("member-profile");
+                        navigate("/member-profile");
                       }}
                       className="group overflow-hidden rounded-[30px] border border-white/10 bg-[#0B1220]/95 p-7 text-left transition-all duration-500 hover:-translate-y-2 hover:border-amber-500/40 hover:shadow-[0_20px_60px_rgba(245,158,11,0.12)]"
                     >

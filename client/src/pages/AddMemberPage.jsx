@@ -10,6 +10,8 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
+import { useNavigate } from "react-router-dom";
+
 function AddMemberPage({
   name,
   setName,
@@ -29,13 +31,13 @@ function AddMemberPage({
   setPhoto,
   isEditing,
   saveMember,
-  setPage,
+
 }) {
   const preview =
     photo instanceof File
       ? URL.createObjectURL(photo)
       : photo;
-
+  const navigate = useNavigate();
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#030712] text-white">
 
@@ -91,7 +93,7 @@ function AddMemberPage({
           </div>
 
           <button
-            onClick={() => setPage("home")}
+            onClick={() => navigate("/")}
             className="group flex items-center gap-3 self-start rounded-2xl border border-white/10 bg-white/[0.05] px-6 py-4 backdrop-blur-xl transition-all duration-300 hover:border-cyan-500/40 hover:bg-cyan-500/10"
           >
 
@@ -99,9 +101,6 @@ function AddMemberPage({
               size={18}
               className="transition-transform duration-300 group-hover:-translate-x-1"
             />
-
-            Dashboard
-
           </button>
 
         </div>
@@ -550,7 +549,7 @@ function AddMemberPage({
 
                 <button
                   type="button"
-                  onClick={() => setPage("home")}
+                  onClick={() => navigate("/")}
                   className="group h-14 rounded-2xl border border-white/10 bg-white/[0.04] px-8 font-semibold text-slate-300 transition-all duration-300 hover:border-white/20 hover:bg-white/[0.08]"
                 >
                   Cancel

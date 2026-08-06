@@ -5,10 +5,15 @@ const Member = require("../models/Member");
 const upload = require("../middleware/upload");
 const authMiddleware = require("../middleware/authMiddleware");
 
+const subscriptionMiddleware = require("../middleware/subscriptionMiddleware");
+
+router.use(authMiddleware);
+router.use(subscriptionMiddleware);
+
 // =======================
 // Save Member
 // =======================
-router.post("/", authMiddleware, upload.single("photo"), async (req, res) => {
+router.post("/", upload.single("photo"), async (req, res) => {
   try {
     console.log("BODY:", req.body);
     console.log("FILE:", req.file);
@@ -19,7 +24,7 @@ router.post("/", authMiddleware, upload.single("photo"), async (req, res) => {
 
     console.log("USER:", req.user);
 
-    req.body.owner = req.user.userId;
+    req.body.owner = req.user._id;
 
     console.log(req.body);
 
@@ -42,10 +47,10 @@ router.post("/", authMiddleware, upload.single("photo"), async (req, res) => {
 // =======================
 // Get All Members
 // =======================
-router.get("/", authMiddleware, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const members = await Member.find({
-  owner: req.user.userId,
+  owner: req.user._id,
 }).sort({ _id: -1 });
 
     res.status(200).json(members);
@@ -61,11 +66,11 @@ router.get("/", authMiddleware, async (req, res) => {
 // =======================
 // Delete Member
 // =======================
-router.delete("/:id", authMiddleware, async (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
 const deletedMember = await Member.findOneAndDelete({
   _id: req.params.id,
-  owner: req.user.userId,
+  owner: req.user._id,
 });
 
 if (!deletedMember) {
@@ -89,7 +94,7 @@ if (!deletedMember) {
 // =======================
 // Update Member
 // =======================
-router.put("/:id", authMiddleware, upload.any(), async (req, res) => {
+router.put("/:id", upload.any(), async (req, res) => {
   try {
     console.log("PUT ID:", req.params.id);
     console.log("REQ BODY:", req.body);
@@ -113,7 +118,7 @@ router.put("/:id", authMiddleware, upload.any(), async (req, res) => {
 
     const existingMember = await Member.findOne({
   _id: req.params.id,
-  owner: req.user.userId,
+  owner: req.user._id,
 });
 
     if (!existingMember) {
@@ -125,7 +130,7 @@ router.put("/:id", authMiddleware, upload.any(), async (req, res) => {
     const updatedMember = await Member.findOneAndUpdate(
   {
     _id: req.params.id,
-    owner: req.user.userId,
+    owner: req.user._id,
   },
   req.body,
   {
@@ -149,10 +154,10 @@ router.put("/:id", authMiddleware, upload.any(), async (req, res) => {
 // =======================
 // Dashboard Stats
 // =======================
-router.get("/stats", authMiddleware, async (req, res) => {
+router.get("/stats", async (req, res) => {
   try {
     const members = await Member.find({
-      owner: req.user.userId,
+      owner: req.user._id,
     });
 
     const totalMembers = members.length;

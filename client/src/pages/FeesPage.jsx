@@ -9,10 +9,10 @@ import {
   XCircle,
   CreditCard,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 function FeesPage({
   members,
-  setPage,
   setPaymentMember,
   setShowPaymentPopup,
   showPaymentPopup,
@@ -86,7 +86,7 @@ function FeesPage({
       return matchesSearch && matchesStatus;
     });
   }, [members, search, statusFilter]);
-
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-slate-950 text-white">
 
@@ -116,11 +116,11 @@ function FeesPage({
           </div>
 
           <button
-            onClick={() => setPage("home")}
+            onClick={() => navigate("/")}
             className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-5 py-3 transition hover:border-cyan-500 hover:bg-slate-800"
           >
             <ArrowLeft size={18} />
-            Dashboard
+      
           </button>
 
         </div>

@@ -8,10 +8,11 @@ import {
   CalendarCheck,
   Sparkles,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 
 function AttendancePage({
   members,
-  setPage,
   markAttendance,
 }) {
   const [search, setSearch] = useState("");
@@ -42,7 +43,7 @@ function AttendancePage({
       const matchesFilter =
         filter === "All" ||
         member.attendance === filter;
-
+const navigate = useNavigate();
       return (
         matchesSearch && matchesFilter
       );
@@ -106,11 +107,11 @@ function AttendancePage({
             </div>
 
             <button
-              onClick={() => setPage("home")}
+              onClick={() => navigate("/")}
               className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-900/60 px-6 py-4 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-500"
             >
               <ArrowLeft size={20} />
-              Dashboard
+          
             </button>
 
           </div>

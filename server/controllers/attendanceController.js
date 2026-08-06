@@ -16,7 +16,7 @@ exports.markAttendance = async (req, res) => {
 
     const member = await Member.findOne({
       _id: memberId,
-      owner: req.user.userId,
+      owner: req.user._id,
     });
 
     if (!member) {
@@ -28,7 +28,7 @@ exports.markAttendance = async (req, res) => {
     const today = new Date().toLocaleDateString("en-GB");
 
     const existingAttendance = await Attendance.findOne({
-      owner: req.user.userId,
+      owner: req.user._id,
       member: memberId,
       date: today,
     });
@@ -40,7 +40,7 @@ exports.markAttendance = async (req, res) => {
     }
 
     const attendance = await Attendance.create({
-      owner: req.user.userId,
+      owner: req.user._id,
       member: memberId,
       date: today,
       status: status || "Present",
@@ -68,7 +68,7 @@ exports.getTodayAttendance = async (req, res) => {
     const today = new Date().toLocaleDateString("en-GB");
 
     const attendance = await Attendance.find({
-      owner: req.user.userId,
+      owner: req.user._id,
       date: today,
     }).populate("member");
 
@@ -89,7 +89,7 @@ exports.getTodayAttendance = async (req, res) => {
 exports.getMemberAttendance = async (req, res) => {
   try {
     const attendance = await Attendance.find({
-      owner: req.user.userId,
+      owner: req.user._id,
       member: req.params.memberId,
     }).sort({
       createdAt: -1,

@@ -1,5 +1,3 @@
-import Sidebar from "../components/Sidebar";
-import Topbar from "../components/Topbar";
 import QuickActionCard from "../components/QuickActionCard";
 import RecentMembers from "../components/RecentMembers";
 import PremiumStatCard from "../components/PremiumStatCard";
@@ -31,7 +29,7 @@ function HomeDashboard({
   setSelectedMember,
 }) {
   return (
-    <div className="relative flex min-h-screen overflow-hidden bg-[#020617] text-white">
+    <div className="text-white">
 
       {/* Background */}
 
@@ -39,34 +37,9 @@ function HomeDashboard({
 
       <div className="pointer-events-none absolute -left-40 bottom-0 h-[500px] w-[500px] rounded-full bg-violet-500/10 blur-[180px]" />
 
-      {/* Sidebar */}
-
-      <Sidebar
-        page={page}
-        setPage={setPage}
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-      />
-
       {/* Main */}
 
-      <div
-        onClick={() => {
-          if (sidebarOpen) {
-            setSidebarOpen(false);
-          }
-        }}
-        className="relative flex-1 transition-all duration-300"
-      >
-
-        <Topbar
-  setSidebarOpen={setSidebarOpen}
-  setPage={setPage}
-  members={members}
-  setSelectedMember={setSelectedMember}
-/>
-
-        <main className="relative z-0 mx-auto w-full max-w-[1650px] px-5 pb-12 lg:px-8 xl:px-10">
+      <div className="relative">
 
           {/* Hero */}
 
@@ -78,9 +51,9 @@ function HomeDashboard({
 
           {/* Stats */}
 
-          <section className="mt-8">
+          <section className="mt-14">
 
-            <div className="mb-7 flex items-center gap-3">
+            <div className="mb-8 flex items-center gap-3 px-1">
 
               <Sparkles
                 size={18}
@@ -95,7 +68,7 @@ function HomeDashboard({
 
             </div>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 2xl:grid-cols-4">
+            <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
 
                         <PremiumStatCard
               title="Total Members"
@@ -152,7 +125,7 @@ function HomeDashboard({
 
             </div>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 2xl:grid-cols-4">
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
 
               <QuickActionCard
                 title="Add Member"
@@ -269,8 +242,6 @@ function HomeDashboard({
             </div>
 
           </footer>
-
-        </main>
 
       </div>
 

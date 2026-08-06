@@ -81,7 +81,7 @@ function PremiumStatCard({
         bg-[#0B1220]/95
         backdrop-blur-3xl
         p-6
-        min-h-[190px]
+        min-h-[165px]
         transition-all
         duration-500
         hover:-translate-y-2
@@ -129,7 +129,7 @@ function PremiumStatCard({
 
         {/* Top */}
 
-        <div className="flex items-start justify-between">
+        <div className="flex items-center justify-between">
 
           <div>
 
@@ -139,7 +139,7 @@ function PremiumStatCard({
 
             </p>
 
-            <h2 className="mt-4 text-4xl lg:text-5xl font-black tracking-tight text-white">
+            <h2 className="mt-2 text-5xl font-black tracking-tight text-white">
 
               {value}
 
@@ -174,7 +174,7 @@ function PremiumStatCard({
         </div>
                 {/* Bottom */}
 
-        <div className="mt-8 border-t border-white/10 pt-5">
+        <div className="mt-5 border-t border-white/10 pt-4">
 
           <div className="flex items-center justify-between">
 

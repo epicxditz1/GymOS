@@ -4,7 +4,6 @@ import "./App.css";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 
-import HomeDashboard from "./pages/HomeDashboard";
 import MembersPage from "./pages/MembersPage";
 import MemberProfile from "./pages/MemberProfile";
 import AddMemberPage from "./pages/AddMemberPage";
@@ -29,8 +28,6 @@ import useDashboardStats from "./hooks/useDashboardStats";
 import {
   Routes,
   Route,
-  Navigate,
-  Outlet,
   useNavigate,
   useLocation,
 } from "react-router-dom";
@@ -42,77 +39,19 @@ import OtpVerification from "./components/OtpVerification";
 import Dashboard from "./pages/Dashboard";
 import DashboardLayout from "./layouts/DashboardLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import AuthRoutes from "./routes/AuthRoutes";
+import Subscription from "./pages/Subscription";
+import {
+  startTrial,
+  trialExpired,
+} from "./utils/trial";
 
 function App() {
   /* ==========================================================
                         NAVIGATION
   ========================================================== */
   const navigate = useNavigate();
-  const location = useLocation();                                                                   
-  const [page, setPage] = useState("home");
-
-  useEffect(() => {
-  const handleBeforeUnload = (event) => {
-    event.preventDefault();
-    event.returnValue = "";
-  };
-
-  window.addEventListener(
-    "beforeunload",
-    handleBeforeUnload
-  );
-
-  return () => {
-    window.removeEventListener(
-      "beforeunload",
-      handleBeforeUnload
-    );
-  };
-}, []);
-
-  useEffect(() => {
-  switch (location.pathname) {
-    case "/":
-      setPage("home");
-      break;
-
-    case "/add-member":
-      setPage("add-member");
-      break;
-
-    case "/view-members":
-      setPage("view-members");
-      break;
-
-    case "/fees":
-      setPage("fees");
-      break;
-
-    case "/attendance":
-      setPage("attendance");
-      break;
-
-    case "/expiring-members":
-      setPage("expiring-members");
-      break;
-
-    case "/owner-profile":
-      setPage("owner-profile");
-      break;
-
-    case "/member-profile":
-      setPage("member-profile");
-      break;
-
-    default:
-      setPage("home");
-  }
-}, [location.pathname]);
-
-function navigatePage(nextPage) {
-  setPage(nextPage);
-
+  
+  function navigatePage(nextPage) {
   switch (nextPage) {
     case "home":
       navigate("/");
@@ -150,6 +89,18 @@ function navigatePage(nextPage) {
       navigate("/");
   }
 }
+const location = useLocation();
+
+useEffect(() => {
+  startTrial();
+
+  if (
+    trialExpired() &&
+    location.pathname !== "/subscription"
+  ) {
+    navigate("/subscription", { replace: true });
+  }
+}, [navigate, location.pathname]);
 
 
   const [selectedMember, setSelectedMember] = useState(null);
@@ -269,6 +220,8 @@ function goHome() {
     setPaymentMethod] =
     useState("Cash");
 
+    
+
   /* ==========================================================
                     MEMBERS HOOK
   ========================================================== */
@@ -280,111 +233,58 @@ function goHome() {
     editMember,
   } = useMembers();
 
-  /*
-  ==========================================================
-
+    /* ==========================================================
                   DASHBOARD STATISTICS
-
   ========================================================== */
 
-
-
   const {
-
     paidMembers,
-
     unpaidMembers,
-
   } = useDashboardStats(members);
 
-
-
   const totalFees = members.reduce(
-
     (sum, member) =>
-
       sum + Number(member.fees || 0),
-
     0
-
   );
 
-
-
   const presentMembers = members.filter(
-
     (member) =>
-
       member.attendance === "Present"
-
   ).length;
 
-
-
   const absentMembers =
-
     members.length - presentMembers;
 
-
-
   const expiringSoonMembers =
-
     members.filter((member) => {
-
       if (!member.expiryDate) return false;
 
-
-
       const today = new Date();
-
       const expiry = new Date(member.expiryDate);
 
-
-
       today.setHours(0, 0, 0, 0);
-
       expiry.setHours(0, 0, 0, 0);
 
-
-
       const diff = Math.ceil(
-
         (expiry - today) /
-
           (1000 * 60 * 60 * 24)
-
       );
 
-
-
       return diff >= 0 && diff <= 7;
-
     }).length;
 
-
-
   const todaysCollection = members
-
   .flatMap((member) => member.paymentHistory || [])
-
   .filter(
-
     (payment) =>
-
       payment.paymentDate ===
-
       new Date().toLocaleDateString("en-GB")
-
   )
-
   .reduce(
-
     (sum, payment) =>
-
       sum + Number(payment.amount || 0),
-
     0
-
   );
 
   /* ==========================================================
@@ -807,31 +707,22 @@ function goHome() {
   );
 }
 
-function renderDashboard() {
-  return (
-    <Dashboard
-      page={page}
-      setPage={navigatePage}
-      members={members}
-      paidMembers={paidMembers}
-      unpaidMembers={unpaidMembers}
-      totalFees={totalFees}
-      todaysCollection={todaysCollection}
-      presentMembers={presentMembers}
-      absentMembers={absentMembers}
-      expiringSoonMembers={expiringSoonMembers}
-      sidebarOpen={sidebarOpen}
-      setSidebarOpen={setSidebarOpen}
-      setSelectedMember={setSelectedMember}
-    />
-  );
-}
-
   /* ==========================================================
-                    PAGE ROUTING
+                    HOME DASHBOARD
   ========================================================== */
-return (
+
+  return (
   <Routes>
+
+    <Route
+  path="/subscription"
+  element={
+    <ProtectedRoute>
+      <Subscription />
+    </ProtectedRoute>
+  }
+/>
+
     <Route
       path="/"
       element={
@@ -849,7 +740,6 @@ return (
         index
         element={
           <Dashboard
-            page={page}
             setPage={navigatePage}
             members={members}
             paidMembers={paidMembers}
@@ -864,134 +754,116 @@ return (
         }
       />
 
-    <Route
-  path="view-members"
-  element={
-    <MembersPage
-      members={members}
-      search={search}
-      setSearch={setSearch}
-      statusFilter={statusFilter}
-      setStatusFilter={setStatusFilter}
-      deleteMember={deleteMember}
-      startEdit={startEdit}
-      setPage={navigatePage}
-      selectedMember={selectedMember}
-      setSelectedMember={setSelectedMember}
-    />
-  }
-/>
+      <Route
+        path="view-members"
+        element={
+          <MembersPage
+            members={members}
+            search={search}
+            setSearch={setSearch}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            deleteMember={deleteMember}
+            startEdit={startEdit}
+            setPage={navigatePage}
+            selectedMember={selectedMember}
+            setSelectedMember={setSelectedMember}
+          />
+        }
+      />
+
+      <Route
+        path="add-member"
+        element={
+          <AddMemberPage
+            name={name}
+            setName={setName}
+            age={age}
+            setAge={setAge}
+            membership={membership}
+            setMembership={setMembership}
+            phone={phone}
+            setPhone={setPhone}
+            joinDate={joinDate}
+            setJoinDate={setJoinDate}
+            amount={amount}
+            setAmount={setAmount}
+            status={status}
+            setStatus={setStatus}
+            photo={photo}
+            setPhoto={setPhoto}
+            isEditing={isEditing}
+            saveMember={handleSaveMember}
+            setPage={navigatePage}
+          />
+        }
+      />
+
+      <Route
+        path="fees"
+        element={
+          <FeesPage
+            members={members}
+            setPage={navigatePage}
+            setPaymentMember={setPaymentMember}
+            setShowPaymentPopup={setShowPaymentPopup}
+            showPaymentPopup={showPaymentPopup}
+            paymentMember={paymentMember}
+            paymentMethod={paymentMethod}
+            setPaymentMethod={setPaymentMethod}
+            receivePayment={receivePayment}
+          />
+        }
+      />
+
+      <Route
+        path="attendance"
+        element={
+          <AttendancePage
+            members={members}
+            setPage={navigatePage}
+            markAttendance={markAttendance}
+          />
+        }
+      />
+
+      <Route
+        path="expiring-members"
+        element={
+          <ExpiringMembersPage
+            members={members}
+            getExpiryStatus={getExpiryStatus}
+            setPage={navigatePage}
+            setSelectedMember={setSelectedMember}
+          />
+        }
+      />
+
+      <Route
+        path="owner-profile"
+        element={
+          <OwnerProfile
+            setPage={navigatePage}
+          />
+        }
+      />
+
+      <Route
+        path="member-profile"
+        element={
+          <MemberProfile
+            member={selectedMember}
+            setPage={navigatePage}
+            startEdit={startEdit}
+            setMembers={setMembers}
+            editMember={editMember}
+          />
+        }
+      />
     </Route>
   </Routes>
 );
 
-  switch (page) {
-    case "add-member":
-      return (
-        <AddMemberPage
-          name={name}
-          setName={setName}
-          age={age}
-          setAge={setAge}
-          membership={membership}
-          setMembership={setMembership}
-          phone={phone}
-          setPhone={setPhone}
-          joinDate={joinDate}
-          setJoinDate={setJoinDate}
-          amount={amount}
-          setAmount={setAmount}
-          status={status}
-          setStatus={setStatus}
-          photo={photo}
-          setPhoto={setPhoto}
-          isEditing={isEditing}
-          saveMember={handleSaveMember}
-          setPage={navigatePage}
-        />
-      );
-    
-      
-    case "member-profile":
-      console.log("editMember in App:", editMember);
-      return (
-        <MemberProfile
-          member={selectedMember}
-          setPage={navigatePage}
-          startEdit={startEdit}
-          setMembers={setMembers}
-          editMember={editMember}
-        />
-      );
-
-    case "view-members":
-      return (
-        <MembersPage
-          members={members}
-          search={search}
-          setSearch={setSearch}
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
-          deleteMember={deleteMember}
-          startEdit={startEdit}
-          setPage={navigatePage}
-          selectedMember={selectedMember}
-          setSelectedMember={setSelectedMember}
-        />
-      );
-
-    case "fees":
-      return (
-        <FeesPage
-          members={members}
-          setPage={navigatePage}
-          setPaymentMember={setPaymentMember}
-          setShowPaymentPopup={setShowPaymentPopup}
-          showPaymentPopup={showPaymentPopup}
-          paymentMember={paymentMember}
-          paymentMethod={paymentMethod}
-          setPaymentMethod={setPaymentMethod}
-          receivePayment={receivePayment}
-        />
-      );
-
-    case "attendance":
-      return (
-        <AttendancePage
-          members={members}
-          setPage={navigatePage}
-          markAttendance={markAttendance}
-        />
-      );
-
-    case "expiring-members":
-      return (
-        <ExpiringMembersPage
-          members={members}
-          getExpiryStatus={getExpiryStatus}
-          setPage={navigatePage}
-          setSelectedMember={setSelectedMember}
-        />
-      );
-
-    case "owner-profile":
-      return (
-        <OwnerProfile
-          setPage={navigatePage}
-        />
-      );
-
-    case "home":
-    default:
-      break;
-  }
-
-
-  /* ==========================================================
-                    HOME DASHBOARD
-  ========================================================== */
-
-  return renderDashboard();
 }
 
 export default App;

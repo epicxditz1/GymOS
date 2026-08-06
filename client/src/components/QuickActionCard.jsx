@@ -68,15 +68,15 @@ function QuickActionCard({
         overflow-hidden
         rounded-[30px]
         border
-        border-white/10
+        border-slate-800
         bg-[#0B1220]/95
         backdrop-blur-3xl
-        p-7
+        p-6 h-full
         text-left
         transition-all
         duration-500
-        hover:-translate-y-2
-        hover:scale-[1.02]
+        hover:-translate-y-3
+        hover:scale-[1.03]
         hover:shadow-2xl
         ${theme.hover}
       `}
@@ -117,13 +117,13 @@ function QuickActionCard({
 
         {/* Top */}
 
-        <div className="flex items-start justify-between">
+        <div className="flex items-center">
 
           <div
             className={`
               flex
-              h-16
-              w-16
+              h-14
+              w-14
               items-center
               justify-center
               rounded-3xl
@@ -135,18 +135,10 @@ function QuickActionCard({
             `}
           >
             <Icon
-              size={30}
+              size={26}
               strokeWidth={2.2}
               className={theme.icon}
             />
-          </div>
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/70 transition-all duration-500 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:border-white/20">
-
-            <ArrowUpRight
-              size={18}
-              className="text-slate-300 transition-transform duration-300 group-hover:rotate-45"
-            />
-
           </div>
 
         </div>
@@ -155,25 +147,7 @@ function QuickActionCard({
 
         <div className="mt-8">
 
-          <div
-            className={`
-              inline-flex
-              items-center
-              rounded-full
-              border
-              px-3
-              py-1
-              text-[11px]
-              font-bold
-              uppercase
-              tracking-[0.18em]
-              ${theme.badge}
-            `}
-          >
-            Quick Action
-          </div>
-
-          <h3 className="mt-5 text-2xl font-black tracking-tight text-white transition-colors duration-300 group-hover:text-white">
+          <h3 className="mt-2 text-xl font-bold text-white">
 
             {title}
 
@@ -189,24 +163,24 @@ function QuickActionCard({
 
         {/* Bottom Status */}
 
-        <div className="mt-8 flex items-center justify-between border-t border-white/10 pt-5">
+        {/* Bottom */}
 
-          <span className="text-xs font-medium tracking-wide text-slate-500">
+<div className="mt-8 border-t border-white/10 pt-5">
 
-            Click to Continue
+  <div className="flex items-center justify-between">
 
-          </span>
+    <span className="text-sm font-semibold text-slate-300 transition-colors group-hover:text-white">
+      Open
+    </span>
 
-          <div
-            className={`
-              h-2.5
-              w-2.5
-              rounded-full
-              ${theme.iconBg}
-            `}
-          />
+    <ArrowUpRight
+      size={18}
+      className="text-slate-400 transition-all duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-white"
+    />
 
-        </div>
+  </div>
+
+</div>
 
       </div>
 

@@ -40,8 +40,8 @@ function DashboardLayout({
           setSelectedMember={setSelectedMember}
         />
 
-        <main className="relative z-0 mx-auto w-full max-w-[1650px] px-5 pb-12 lg:px-8 xl:px-10">
-
+        <main className="relative z-0 mx-auto w-full max-w-[1650px] px-8 pb-12 lg:px-10 xl:px-12">
+          
           <Outlet
   context={{
     members,

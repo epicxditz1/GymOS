@@ -17,12 +17,12 @@ import { useState } from "react";
 
 import MemberDetailsModal from "../components/MemberDetailsModal";
 import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
+import { useNavigate } from "react-router-dom";
 
 function MembersPage({
   members,
   search,
   setSearch,
-  setPage,
   statusFilter,
   setStatusFilter,
   deleteMember,
@@ -73,6 +73,8 @@ function MembersPage({
         (1000 * 60 * 60 * 24)
     );
 
+    const navigate = useNavigate();
+
     return diff >= 0 && diff <= 7;
   }).length;
 
@@ -104,7 +106,7 @@ function MembersPage({
           <div className="flex gap-4">
 
             <button
-              onClick={() => setPage("add-member")}
+              onClick={() => navigate("/add-member")}
               className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-3 font-semibold shadow-lg shadow-cyan-500/30 transition-all duration-300 hover:scale-105"
             >
               <UserPlus size={18} />
@@ -112,11 +114,11 @@ function MembersPage({
             </button>
 
             <button
-              onClick={() => setPage("home")}
+              onClick={() => navigate("home")}
               className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-3 backdrop-blur-xl transition-all duration-300 hover:border-cyan-500 hover:bg-white/10"
             >
               <ArrowLeft size={18} />
-              Dashboard
+          
             </button>
 
           </div>
@@ -281,7 +283,7 @@ function MembersPage({
       </p>
 
       <button
-        onClick={() => setPage("add-member")}
+        onClick={() => navigate("add-member")}
         className="mt-8 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-3 font-semibold transition hover:scale-105"
       >
         Add Member
@@ -400,7 +402,7 @@ function MembersPage({
     <button
       onClick={() => {
         setSelectedMember(member);
-        setPage("member-profile");
+        navigate("/member-profile");
       }}
       className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 py-3 font-semibold text-white transition-all duration-300 hover:scale-105"
     >

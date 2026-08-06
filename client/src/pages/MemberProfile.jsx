@@ -14,10 +14,10 @@ import { toast } from "sonner";
 
 import RenewMembershipModal from "../components/RenewMembershipModal";
 import PaymentHistoryCard from "../components/PaymentHistoryCard";
+import { useNavigate } from "react-router-dom";
 
 function MemberProfile({
   member,
-  setPage,
   editMember,
   setMembers,
   startEdit,
@@ -27,6 +27,7 @@ function MemberProfile({
   const [membership, setMembership] = useState(
     member?.membership || "1 Month"
   );
+  const navigate = useNavigate();
 
   const [paymentMethod, setPaymentMethod] =
     useState("Cash");
@@ -192,13 +193,13 @@ function MemberProfile({
 
           <button
             onClick={() =>
-              setPage("view-members")
+              navigate("/view-members")
             }
             className="flex items-center gap-2 rounded-xl border border-slate-800 bg-[#0F172A] px-4 py-2 text-slate-300 transition hover:border-cyan-500 hover:text-white"
           >
             <ArrowLeft size={18} />
 
-            Back to Members
+    
           </button>
 
         </div>

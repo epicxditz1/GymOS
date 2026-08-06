@@ -11,6 +11,8 @@ const attendanceRoutes = require("./routes/attendanceRoutes");
 
 const app = express();
 
+const subscriptionRoutes = require("./routes/subscriptionRoutes");
+
 
 app.use(cors());
 app.use(express.json());
@@ -24,6 +26,7 @@ app.use("/api/users", userRoutes);
 
 app.use("/api/attendance", attendanceRoutes);
 
+app.use("/api/subscription", subscriptionRoutes);
 
 // MongoDB Connection
 mongoose

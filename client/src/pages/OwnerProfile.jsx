@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   User,
@@ -18,10 +19,11 @@ import {
   updateOwnerProfile,
 } from "../services/userService";
 
-function OwnerProfile({ setPage }) {
+function OwnerProfile() {
   const [owner, setOwner] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     gymName: "",
@@ -114,11 +116,11 @@ const response = await updateOwnerProfile(data);
 
       {/* Back Button */}
       <button
-        onClick={() => setPage("home")}
+        onClick={() => navigate("/")}
         className="flex items-center gap-2 text-slate-300 hover:text-cyan-400 transition mb-8"
       >
         <ArrowLeft size={20} />
-        Back
+      
       </button>
 
       {/* Header */}
