@@ -169,8 +169,8 @@ exports.login = async (req, res) => {
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(
-      req.user.userId
-    ).select("-password");
+  req.user._id
+).select("-password");
 
     if (!user) {
       return res.status(404).json({
@@ -195,9 +195,8 @@ exports.getMe = async (req, res) => {
 exports.updateProfile = async (req, res) => {
   try {
     const user = await User.findById(
-      req.user.userId
-    );
-
+  req.user._id
+);
     if (!user) {
       return res.status(404).json({
         message: "User not found",

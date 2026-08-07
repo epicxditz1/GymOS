@@ -21,9 +21,15 @@ const authMiddleware = async (req, res, next) => {
       process.env.JWT_SECRET
     );
 
+    console.log("========== AUTH DEBUG ==========");
+    console.log("Decoded JWT:", decoded);
+
     const user = await User.findById(
   decoded.userId
 ).select("-password -otp");
+
+console.log("Found User:", user);
+console.log("================================");
 
     if (!user) {
       return res.status(401).json({

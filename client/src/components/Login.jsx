@@ -24,6 +24,7 @@ function Login({ setIsLoggedIn, goToSignup }) {
     try {
       setLoading(true);
 
+
       const response = await api.post(
         "/users/login",
         {
@@ -31,6 +32,10 @@ function Login({ setIsLoggedIn, goToSignup }) {
           password,
         }
       );
+
+      console.log("Full Response:", response.data);
+console.log("Token:", response.data.token);
+console.log("User:", response.data.user);
 
       localStorage.setItem(
   "token",
@@ -43,6 +48,9 @@ if (response.data.user) {
     JSON.stringify(response.data.user)
   );
 }
+
+console.log("Token:", response.data.token);
+console.log("User:", response.data.user);
 
 setIsLoggedIn(true);
 
