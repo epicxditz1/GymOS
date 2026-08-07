@@ -11,6 +11,7 @@ import FeesPage from "./pages/FeesPage";
 import AttendancePage from "./pages/AttendancePage";
 import ExpiringMembersPage from "./pages/ExpiringMembersPage";
 import OwnerProfile from "./pages/OwnerProfile";
+import ForgotPassword from "./components/ForgotPassword";
 
 import { toast } from "sonner";
 
@@ -693,18 +694,37 @@ function goHome() {
     );
   }
 
-  return authPage === "login" ? (
-    <Login
-      setIsLoggedIn={setIsLoggedIn}
-      goToSignup={() => setAuthPage("signup")}
-    />
-  ) : (
-    <Signup
-      goToLogin={() => setAuthPage("login")}
-      setPendingEmail={setPendingEmail}
-      setShowOTP={setShowOTP}
-    />
-  );
+  switch (authPage) {
+    case "login":
+      return (
+        <Login
+          setIsLoggedIn={setIsLoggedIn}
+          goToSignup={() => setAuthPage("signup")}
+          goToForgotPassword={() =>
+            setAuthPage("forgot-password")
+          }
+        />
+      );
+
+    case "signup":
+      return (
+        <Signup
+          goToLogin={() => setAuthPage("login")}
+          setPendingEmail={setPendingEmail}
+          setShowOTP={setShowOTP}
+        />
+      );
+
+    case "forgot-password":
+      return (
+        <ForgotPassword
+          goToLogin={() => setAuthPage("login")}
+        />
+      );
+
+    default:
+      return null;
+  }
 }
 
   /* ==========================================================

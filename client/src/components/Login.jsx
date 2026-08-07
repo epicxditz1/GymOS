@@ -7,7 +7,11 @@ import {
 } from "lucide-react";
 import api from "../services/api";
 
-function Login({ setIsLoggedIn, goToSignup }) {
+function Login({
+  setIsLoggedIn,
+  goToSignup,
+  goToForgotPassword,
+}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] =
@@ -196,11 +200,12 @@ setIsLoggedIn(true);
             </label>
 
             <button
-              type="button"
-              className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
-            >
-              Forgot Password?
-            </button>
+  type="button"
+  onClick={goToForgotPassword}
+  className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
+>
+  Forgot Password?
+</button>
 
           </div>
 

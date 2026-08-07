@@ -5,6 +5,7 @@ const generateOTP = require("../utils/generateOTP");
 const sendOTP = require("../services/emailService");
 
 const pendingSignups = {};
+const pendingPasswordResets = {};
 
 // ======================
 // Signup
@@ -81,6 +82,51 @@ exports.signup = async (req, res) => {
     console.error(error);
 
     res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        message: "Email is required",
+      });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const user = await User.findOne({
+      email: normalizedEmail,
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    const otp = generateOTP();
+
+    pendingPasswordResets[normalizedEmail] = {
+      otp,
+      otpExpiry: Date.now() + 5 * 60 * 1000,
+    };
+
+    await sendOTP(normalizedEmail, otp);
+
+    return res.status(200).json({
+      message: "OTP sent successfully.",
+      email: normalizedEmail,
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
       message: error.message,
     });
   }
@@ -384,6 +430,107 @@ console.log("✅ OTP MATCH");
 
     res.status(500).json({
       message: error.message,
+    });
+  }
+};
+exports.verifyForgotPasswordOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const pending =
+      pendingPasswordResets[normalizedEmail];
+
+    if (!pending) {
+      return res.status(400).json({
+        message: "OTP expired",
+      });
+    }
+
+    if (pending.otpExpiry < Date.now()) {
+      delete pendingPasswordResets[normalizedEmail];
+
+      return res.status(400).json({
+        message: "OTP expired",
+      });
+    }
+
+    if (pending.otp !== otp) {
+      return res.status(400).json({
+        message: "Invalid OTP",
+      });
+    }
+
+    pending.isVerified = true;
+
+    return res.status(200).json({
+      message: "OTP verified successfully",
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Email and password are required",
+      });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const pending =
+  pendingPasswordResets[normalizedEmail];
+
+if (!pending) {
+  return res.status(400).json({
+    message: "Please verify OTP first",
+  });
+}
+
+if (!pending.isVerified) {
+  return res.status(400).json({
+    message: "Please verify OTP first",
+  });
+}
+
+    const user = await User.findOne({
+      email: normalizedEmail,
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    user.password = await bcrypt.hash(
+      password,
+      10
+    );
+
+    await user.save();
+
+    delete pendingPasswordResets[normalizedEmail];
+
+    return res.status(200).json({
+      message: "Password reset successfully",
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      message: err.message,
     });
   }
 };
