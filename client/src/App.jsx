@@ -36,6 +36,7 @@ import {
 import api from "./services/api";
 
 import OtpVerification from "./components/OtpVerification";
+import ResetPassword from "./components/ResetPassword";
 
 import Dashboard from "./pages/Dashboard";
 import DashboardLayout from "./layouts/DashboardLayout";
@@ -119,6 +120,9 @@ const [loadingAuth, setLoadingAuth] =
 
   const [authPage, setAuthPage] =
     useState("login");
+  
+  const [forgotPasswordStep, setForgotPasswordStep] =
+  useState("email");
 
   const [pendingEmail, setPendingEmail] =
   useState("");
@@ -684,15 +688,37 @@ function goHome() {
   );
 }
 
- if (!isLoggedIn) {
-  if (showOTP) {
+if (showOTP) {
+  if (forgotPasswordStep === "otp") {
     return (
       <OtpVerification
         email={pendingEmail}
-        setIsLoggedIn={setIsLoggedIn}
+        goToForgotPassword={() => {
+          setShowOTP(false);
+          setAuthPage("forgot-password");
+        }}
+        goToResetPassword={() =>
+          setForgotPasswordStep("reset")
+        }
       />
     );
   }
+
+  if (forgotPasswordStep === "reset") {
+    return (
+      <ResetPassword
+        email={pendingEmail}
+        goToLogin={() => {
+          setShowOTP(false);
+          setAuthPage("login");
+          setForgotPasswordStep("email");
+        }}
+      />
+    );
+  }
+}
+
+if (!isLoggedIn) {
 
   switch (authPage) {
     case "login":
@@ -716,11 +742,16 @@ function goHome() {
       );
 
     case "forgot-password":
-      return (
-        <ForgotPassword
-          goToLogin={() => setAuthPage("login")}
-        />
-      );
+  return (
+    <ForgotPassword
+      goToLogin={() => setAuthPage("login")}
+      goToOtpVerification={(email) => {
+        setPendingEmail(email);
+        setForgotPasswordStep("otp");
+        setShowOTP(true);
+      }}
+    />
+  );
 
     default:
       return null;
