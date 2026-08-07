@@ -11,7 +11,9 @@ function Signup({
   goToLogin,
   setPendingEmail,
   setShowOTP,
-}) {
+  setForgotPasswordStep,
+})
+ {
   const [gymName, setGymName] = useState("");
   const [ownerName, setOwnerName] = useState("");
   const [email, setEmail] = useState("");
@@ -56,7 +58,7 @@ function Signup({
       alert(response.data.message);
 
 setPendingEmail(email);
-
+setForgotPasswordStep("signup");
 setShowOTP(true);
 
     } catch (error) {
@@ -307,12 +309,6 @@ setShowOTP(true);
         </p>
 
       </div>
-
-      {/* Footer */}
-
-      <p className="mt-8 text-center text-xs text-slate-600">
-        © {new Date().getFullYear()} GymOS • Built for modern gyms.
-      </p>
 
     </div>
 

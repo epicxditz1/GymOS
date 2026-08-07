@@ -7,7 +7,7 @@ const sendOTP = async (email, otp) => {
     console.log("Sending OTP to:", email);
 
     const result = await resend.emails.send({
-      from: "GymOS <onboarding@resend.dev>",
+      from: "GymOS <noreply@gymos.space>",
       to: email,
       subject: "Verify your GymOS Account",
       html: `

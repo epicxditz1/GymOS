@@ -1,14 +1,37 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ShieldCheck, ArrowLeft } from "lucide-react";
 import api from "../services/api";
 
 function OtpVerification({
   email,
+  isSignup,
+  goToLogin,
   goToForgotPassword,
   goToResetPassword,
 }) {
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [timer, setTimer] = useState(30);
+const [canResend, setCanResend] = useState(false);
+
+useEffect(() => {
+  if (canResend) return;
+
+  const interval = setInterval(() => {
+    setTimer((prev) => {
+      if (prev <= 1) {
+        clearInterval(interval);
+        setCanResend(true);
+        return 0;
+      }
+
+      return prev - 1;
+    });
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, [canResend]);
 
   async function handleVerifyOTP() {
     if (!otp) {
@@ -19,15 +42,30 @@ function OtpVerification({
     try {
       setLoading(true);
 
-      await api.post(
-        "/users/verify-forgot-password-otp",
-        {
-          email,
-          otp,
-        }
-      );
+      const endpoint = isSignup
+  ? "/users/verify-otp"
+  : "/users/verify-forgot-password-otp";
 
-      goToResetPassword(email);
+const response = await api.post(endpoint, {
+  email,
+  otp,
+});
+
+      if (isSignup) {
+  localStorage.setItem(
+    "token",
+    response.data.token
+  );
+
+  localStorage.setItem(
+    "owner",
+    JSON.stringify(response.data.user)
+  );
+
+  window.location.reload();
+} else {
+  goToResetPassword(email);
+}
 
     } catch (err) {
       console.error(err);
@@ -89,13 +127,60 @@ function OtpVerification({
             : "Verify OTP"}
         </button>
 
+        <div className="mt-4 text-center">
+  {canResend ? (
+    <button
+      className="text-cyan-400 hover:text-cyan-300 font-medium"
+      onClick={async () => {
+  try {
+    const endpoint = isSignup
+      ? "/users/resend-otp"
+      : "/users/forgot-password";
+
+    await api.post(endpoint, {
+      email,
+    });
+
+    alert("OTP Sent Successfully ✅");
+
+    setTimer(30);
+    setCanResend(false);
+
+  } catch (err) {
+    console.error(err);
+
+    alert(
+      err.response?.data?.message ||
+      "Failed to resend OTP"
+    );
+  }
+}}
+    >
+      Resend OTP
+    </button>
+  ) : (
+    <p className="text-slate-400">
+      Resend OTP in{" "}
+      <span className="text-cyan-400 font-semibold">
+        {timer}s
+      </span>
+    </p>
+  )}
+</div>
+
         <button
-          onClick={goToForgotPassword}
-          className="mt-4 w-full flex justify-center items-center gap-2 text-slate-400 hover:text-white"
-        >
-          <ArrowLeft size={18} />
-          Back
-        </button>
+  onClick={() => {
+    if (isSignup) {
+      goToLogin();
+    } else {
+      goToForgotPassword();
+    }
+  }}
+  className="mt-4 w-full flex justify-center items-center gap-2 text-slate-400 hover:text-white"
+>
+  <ArrowLeft size={18} />
+  Back
+</button>
 
       </div>
 

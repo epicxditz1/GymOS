@@ -689,6 +689,20 @@ function goHome() {
 }
 
 if (showOTP) {
+
+  if (forgotPasswordStep === "signup") {
+  return (
+    <OtpVerification
+      email={pendingEmail}
+      isSignup={true}
+      goToLogin={() => {
+        setShowOTP(false);
+        setAuthPage("login");
+        setForgotPasswordStep("email");
+      }}
+    />
+  );
+}
   if (forgotPasswordStep === "otp") {
     return (
       <OtpVerification
@@ -735,10 +749,11 @@ if (!isLoggedIn) {
     case "signup":
       return (
         <Signup
-          goToLogin={() => setAuthPage("login")}
-          setPendingEmail={setPendingEmail}
-          setShowOTP={setShowOTP}
-        />
+  goToLogin={() => setAuthPage("login")}
+  setPendingEmail={setPendingEmail}
+  setShowOTP={setShowOTP}
+  setForgotPasswordStep={setForgotPasswordStep}
+/>
       );
 
     case "forgot-password":
