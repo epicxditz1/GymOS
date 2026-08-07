@@ -31,11 +31,13 @@ function MembersPage({
   setSelectedMember,
 }) {
   const [showMemberDetails, setShowMemberDetails] =
-    useState(false);
+    useState(false);   
 
   const [showDeleteModal, setShowDeleteModal] =
     useState(false);
-
+  
+  const navigate = useNavigate(); 
+    
   const [memberToDelete, setMemberToDelete] =
     useState(null);
 
@@ -72,8 +74,6 @@ function MembersPage({
       (expiry - today) /
         (1000 * 60 * 60 * 24)
     );
-
-    const navigate = useNavigate();
 
     return diff >= 0 && diff <= 7;
   }).length;
