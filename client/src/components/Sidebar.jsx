@@ -4,7 +4,6 @@ import {
   CreditCard,
   CalendarCheck,
   TriangleAlert,
-  UserCircle,
   LogOut,
   Dumbbell,
   Sparkles,
@@ -15,12 +14,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 function Sidebar({
   sidebarOpen,
   setSidebarOpen,
-})
-
-{
-
+}) {
   const navigate = useNavigate();
-const location = useLocation();
+  const location = useLocation();
+
+  const owner =
+    JSON.parse(localStorage.getItem("owner")) || {};
 
   const menuItems = [
     {
@@ -48,17 +47,28 @@ const location = useLocation();
       label: "Expiring",
       icon: TriangleAlert,
     },
-    {
-      id: "owner-profile",
-      label: "Owner Profile",
-      icon: UserCircle,
-    },
   ];
+
+  const logout = () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to logout?"
+    );
+
+    if (!confirmed) return;
+
+    localStorage.clear();
+
+    navigate("/", {
+      replace: true,
+    });
+
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
+  };
 
   return (
     <>
-      {/* Overlay */}
-
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
@@ -66,10 +76,8 @@ const location = useLocation();
         />
       )}
 
-      {/* Sidebar */}
-
       <aside
-        className={`fixed left-0 top-0 z-50 flex h-screen w-72 flex-col overflow-hidden border-r border-white/10 bg-[#050816]/95 backdrop-blur-3xl transition-transform duration-300 ${
+        className={`fixed left-0 top-0 z-50 flex h-screen w-72 flex-col border-r border-white/10 bg-[#050816]/95 backdrop-blur-3xl transition-transform duration-300 ${
           sidebarOpen
             ? "translate-x-0"
             : "-translate-x-full"
@@ -83,7 +91,7 @@ const location = useLocation();
 
         {/* Logo */}
 
-        <div className="relative border-b border-white/10 p-7">
+        <div className="relative shrink-0 border-b border-white/10 p-7">
 
           <div className="flex items-center gap-4">
 
@@ -111,7 +119,7 @@ const location = useLocation();
 
               </div>
 
-              <h1 className="mt-1 text-3xl font-black tracking-tight text-white">
+              <h1 className="mt-1 text-3xl font-black text-white">
                 GymOS
               </h1>
 
@@ -127,104 +135,108 @@ const location = useLocation();
 
         {/* Navigation */}
 
-        <div className="relative flex-1 space-y-3 px-5 py-7">
+        <div className="flex-1 overflow-y-auto px-5 py-6">
 
-          {menuItems.map((item) => {
-            const Icon = item.icon;
+          <div className="space-y-3">
 
-            const active =
-  item.id === "home"
-    ? location.pathname === "/" || location.pathname === "/home"
-    : location.pathname === "/" + item.id;
+            {menuItems.map((item) => {
+              const Icon = item.icon;
 
-            return (
-              <button
-                key={item.id}
-                onClick={() => {
-  navigate(item.id === "home" ? "/" : "/" + item.id);
-  setSidebarOpen(false);
-}}
+              const active =
+                item.id === "home"
+                  ? location.pathname === "/" ||
+                    location.pathname === "/home"
+                  : location.pathname ===
+                    "/" + item.id;
 
-                className={`group relative flex w-full items-center gap-4 overflow-hidden rounded-2xl px-5 py-4 transition-all duration-300 ${
-                  active
-                    ? "border border-cyan-500/30 bg-gradient-to-r from-cyan-500/15 to-blue-500/10 text-cyan-300 shadow-[0_10px_30px_rgba(34,211,238,0.12)]"
-                    : "border border-transparent text-slate-400 hover:border-white/10 hover:bg-white/[0.04] hover:text-white"
-                }`}
-              >
-                {active && (
-                  <div className="absolute left-0 top-3 bottom-3 w-1 rounded-full bg-cyan-400" />
-                )}
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    navigate(
+                      item.id === "home"
+                        ? "/"
+                        : "/" + item.id
+                    );
 
-                <Icon
-                  size={22}
-                  className={`transition-all duration-300 ${
+                    setSidebarOpen(false);
+                  }}
+                  className={`group relative flex w-full items-center gap-4 overflow-hidden rounded-2xl px-5 py-4 transition-all duration-300 ${
                     active
-                      ? "scale-110"
-                      : "group-hover:scale-110 group-hover:rotate-6"
+                      ? "border border-cyan-500/30 bg-gradient-to-r from-cyan-500/15 to-blue-500/10 text-cyan-300 shadow-[0_10px_30px_rgba(34,211,238,0.12)]"
+                      : "border border-transparent text-slate-400 hover:border-white/10 hover:bg-white/[0.04] hover:text-white"
                   }`}
-                />
+                >
+                  {active && (
+                    <div className="absolute left-0 top-3 bottom-3 w-1 rounded-full bg-cyan-400" />
+                  )}
 
-                <span className="font-semibold tracking-wide">
-                  {item.label}
-                </span>
+                  <Icon
+                    size={22}
+                    className={`transition-all duration-300 ${
+                      active
+                        ? "scale-110"
+                        : "group-hover:scale-110 group-hover:rotate-6"
+                    }`}
+                  />
 
-              </button>
-            );
-          })}
+                  <span className="font-semibold">
+                    {item.label}
+                  </span>
+
+                </button>
+              );
+            })}
+          </div>
 
         </div>
 
-        {/* Bottom */}
+                {/* Bottom */}
 
-        <div className="border-t border-white/10 p-5">
+        <div className="shrink-0 border-t border-white/10 p-4">
 
-          {/* Owner */}
+          {/* Owner Card */}
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-xl">
+          <button
+            onClick={() => {
+              navigate("/owner-profile");
+              setSidebarOpen(false);
+            }}
+            className="mb-4 flex w-full items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-left transition-all duration-300 hover:border-cyan-500/40 hover:bg-white/[0.06]"
+          >
 
-            <div className="flex items-center gap-4">
+            <img
+              src={
+                owner.gymLogo ||
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                  owner.ownerName || "Owner"
+                )}&background=06B6D4&color=ffffff`
+              }
+              alt="Owner"
+              className="h-14 w-14 rounded-2xl border border-cyan-500/30 object-cover"
+            />
 
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 text-lg font-black text-white shadow-lg shadow-cyan-500/30">
+            <div className="min-w-0 flex-1">
 
-                M
+              <h3 className="truncate font-bold text-white">
+                {owner.ownerName || "Gym Owner"}
+              </h3>
 
-              </div>
-
-              <div>
-
-                <h3 className="font-bold text-white">
-                  Mayank
-                </h3>
-
-                <p className="text-xs text-slate-400">
-                  Gym Owner
-                </p>
-
-              </div>
+              <p className="truncate text-xs text-slate-400">
+                {owner.email || ""}
+              </p>
 
             </div>
 
-          </div>
+          </button>
 
           {/* Logout */}
 
           <button
-            onClick={() => {
-  const confirmed = window.confirm(
-    "Are you sure you want to logout?"
-  );
+            onClick={logout}
+            className="group flex w-full items-center justify-center gap-3 rounded-2xl border border-red-500/20 bg-red-500/10 py-3.5 font-semibold text-red-400 transition-all duration-300 hover:border-red-500/40 hover:bg-red-500 hover:text-white"
+          >
 
-  if (!confirmed) return;
-
-  localStorage.removeItem("token");
-  localStorage.removeItem("owner");
-
-  navigate("/");
-
-  window.location.reload();
-}}
-
-            className="group mt-5 flex w-full items-center justify-center gap-3 rounded-2xl border border-red-500/20 bg-red-500/10 py-4 font-semibold text-red-400 transition-all duration-300 hover:border-red-500/40 hover:bg-red-500 hover:text-white">
             <LogOut
               size={20}
               className="transition-transform duration-300 group-hover:-translate-x-1"
@@ -236,7 +248,7 @@ const location = useLocation();
 
           {/* Footer */}
 
-          <div className="mt-6 border-t border-white/10 pt-5 text-center">
+          <div className="mt-4 border-t border-white/10 pt-3 text-center">
 
             <p className="text-xs font-semibold tracking-[0.2em] text-slate-500">
               GYMOS v1.0
@@ -251,6 +263,7 @@ const location = useLocation();
         </div>
 
       </aside>
+
     </>
   );
 }
