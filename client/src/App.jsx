@@ -852,7 +852,11 @@ function goHome() {
         path="member-profile"
         element={
           <MemberProfile
-            member={selectedMember}
+            member={
+            members.find(
+              (m) => m._id === selectedMember?._id
+            ) || selectedMember
+           }
             setPage={navigatePage}
             startEdit={startEdit}
             setMembers={setMembers}
